@@ -1,0 +1,1073 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>DrawVault — Results & Verification</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --gold:#C9A96E;--gl:#E8C98A;--gd:#9A7A4A;--gbg:rgba(201,169,110,.07);--gbg2:rgba(201,169,110,.14);--gbg3:rgba(201,169,110,.22);
+  --em:#1DB584;--emd:#0F6A50;--embg:rgba(29,181,132,.07);--embg2:rgba(29,181,132,.14);
+  --red:#E24B4A;--rdbg:rgba(226,75,74,.08);--rdbg2:rgba(226,75,74,.15);
+  --blue:#2D8BDE;--blbg:rgba(45,139,222,.08);--blbg2:rgba(45,139,222,.14);
+  --purple:#8B5CF6;--purbg:rgba(139,92,246,.1);
+  --bg:#05080F;--bg2:#080D18;--bg3:#0C1220;--bg4:#0F1628;--bg5:#131929;
+  --g:rgba(255,255,255,.04);--gb:rgba(255,255,255,.07);--gb2:rgba(255,255,255,.12);--gb3:rgba(255,255,255,.2);
+  --tx:#EEE9DE;--mu:#8A8784;--fa:#3D3C3A;--fa2:#1C1E24;
+  --fd:'DM Serif Display',serif;--fb:'Outfit',sans-serif;
+  --nav:64px;--side:240px;
+}
+html,body{min-height:100%;background:var(--bg);color:var(--tx);font-family:var(--fb);overflow-x:hidden}
+::-webkit-scrollbar{width:3px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--fa);border-radius:2px}
+
+/* ━━ TOPBAR ━━ */
+.topbar{position:fixed;top:0;left:0;right:0;height:var(--nav);z-index:200;background:rgba(5,8,15,.92);backdrop-filter:blur(24px);border-bottom:1px solid var(--gb);display:flex;align-items:center;padding:0 1.5rem;gap:1.5rem}
+.t-logo{font-family:var(--fd);font-size:1.35rem;color:var(--gold);text-decoration:none}
+.t-logo span{color:var(--tx);font-style:italic}
+.t-breadcrumb{display:flex;align-items:center;gap:.5rem;font-size:.8rem;color:var(--mu)}
+.t-breadcrumb span{color:var(--tx);font-weight:500}
+.t-right{margin-left:auto;display:flex;align-items:center;gap:1rem}
+.tab-sw{display:flex;background:var(--fa2);border:1px solid var(--gb);border-radius:2rem;padding:3px;gap:2px}
+.tab-b{padding:.38rem 1rem;border-radius:2rem;border:none;background:transparent;color:var(--mu);font-family:var(--fb);font-size:.76rem;font-weight:500;cursor:pointer;transition:all .3s;white-space:nowrap;display:flex;align-items:center;gap:.35rem}
+.tab-b.active{background:var(--gb2);color:var(--tx)}
+.t-avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--gd),var(--gold));display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;color:#05080F}
+
+/* ━━ SIDEBAR ━━ */
+.sidebar{position:fixed;top:var(--nav);left:0;bottom:0;width:var(--side);background:var(--bg2);border-right:1px solid var(--gb);padding:1.25rem 0;display:flex;flex-direction:column;z-index:100;overflow-y:auto}
+.s-label{font-size:.62rem;letter-spacing:.15em;text-transform:uppercase;color:var(--fa);padding:0 1.5rem;margin:1rem 0 .4rem}
+.s-item{display:flex;align-items:center;gap:.75rem;padding:.6rem .75rem;border-radius:.75rem;cursor:pointer;transition:all .2s;font-size:.82rem;color:var(--mu);margin:0 .75rem 2px;border:1px solid transparent;text-decoration:none}
+.s-item:hover{background:var(--g);color:var(--tx)}
+.s-item.active{background:var(--gbg);border-color:rgba(201,169,110,.2);color:var(--gold)}
+.s-item svg{flex-shrink:0;opacity:1}
+.s-bottom{margin-top:auto;padding:.75rem}
+.sub-pill{background:var(--gbg);border:1px solid rgba(201,169,110,.2);border-radius:.75rem;padding:.85rem 1rem}
+.sp-status{display:flex;align-items:center;gap:.35rem;font-size:.65rem;font-weight:700;letter-spacing:.08em;color:var(--em);margin-bottom:.3rem}
+.sp-dot{width:5px;height:5px;border-radius:50%;background:var(--em);animation:blink 2s ease-in-out infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.sp-plan{font-size:.82rem;font-weight:600}
+.sp-renew{font-size:.7rem;color:var(--mu);margin-top:.15rem}
+
+/* ━━ MAIN ━━ */
+.main{margin-left:var(--side);margin-top:var(--nav);min-height:calc(100vh - var(--nav))}
+.section{display:none;padding:2rem 2rem 5rem;animation:fsIn .4s cubic-bezier(.4,0,.2,1) both}
+.section.active{display:block}
+@keyframes fsIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.p-hdr{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:2rem;gap:1rem;flex-wrap:wrap}
+.p-hdr-l .eyebrow{font-size:.72rem;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);margin-bottom:.35rem}
+.p-hdr-l .ptitle{font-family:var(--fd);font-size:2rem;line-height:1.1}
+.p-hdr-l .ptitle em{color:var(--gold);font-style:italic}
+.p-hdr-l .psub{font-size:.85rem;color:var(--mu);margin-top:.3rem}
+.p-hdr-r{display:flex;gap:.75rem}
+.btn-p{padding:.65rem 1.3rem;border-radius:2rem;border:none;background:var(--gold);color:#05080F;font-family:var(--fb);font-size:.8rem;font-weight:700;cursor:pointer;transition:all .25s;display:flex;align-items:center;gap:.4rem}
+.btn-p:hover{background:var(--gl);transform:translateY(-2px);box-shadow:0 10px 28px rgba(201,169,110,.25)}
+.btn-g{padding:.65rem 1.1rem;border-radius:2rem;border:1px solid var(--gb2);background:transparent;color:var(--mu);font-family:var(--fb);font-size:.8rem;cursor:pointer;transition:all .25s}
+.btn-g:hover{border-color:var(--gb3);color:var(--tx)}
+
+/* card */
+.card{background:var(--g);border:1px solid var(--gb);border-radius:1.5rem;padding:1.5rem;position:relative;overflow:hidden}
+.card::after{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.06),transparent)}
+.c-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem}
+.c-title-row{display:flex;align-items:center;gap:.6rem}
+.c-ic{width:28px;height:28px;border-radius:.5rem;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.c-ic.gold{background:var(--gbg2);color:var(--gold)}
+.c-ic.green{background:var(--embg2);color:var(--em)}
+.c-ic.blue{background:var(--blbg2);color:var(--blue)}
+.c-ic.red{background:var(--rdbg);color:var(--red)}
+.c-ic.purple{background:var(--purbg);color:var(--purple)}
+.c-ttl{font-size:.88rem;font-weight:600}
+.c-sub{font-size:.73rem;color:var(--mu);margin-top:.1rem}
+.c-act{font-size:.73rem;color:var(--gold);background:none;border:1px solid transparent;border-radius:.4rem;font-family:var(--fb);cursor:pointer;padding:.25rem .6rem;transition:all .2s}
+.c-act:hover{border-color:rgba(201,169,110,.2);background:var(--gbg)}
+
+/* ════════════════════════════════════
+   FEATURE 6 — RESULTS PAGE
+════════════════════════════════════ */
+.results-layout{display:grid;grid-template-columns:1fr 300px;gap:1.5rem;align-items:start}
+.results-col{display:flex;flex-direction:column;gap:1.5rem}
+
+/* ── HERO RESULT CARD ── */
+.result-hero{background:var(--bg2);border:1px solid var(--gb);border-radius:1.75rem;padding:2.5rem 2rem;text-align:center;position:relative;overflow:hidden}
+.result-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 70% 50% at 50% 0%,rgba(201,169,110,.06),transparent)}
+.result-hero.win3::before{background:radial-gradient(ellipse 70% 50% at 50% 0%,rgba(29,181,132,.07),transparent)}
+.result-hero.win4::before{background:radial-gradient(ellipse 70% 50% at 50% 0%,rgba(201,169,110,.1),transparent)}
+.result-hero.win5::before{background:radial-gradient(ellipse 80% 60% at 50% 0%,rgba(201,169,110,.15),transparent)}
+.result-draw-label{font-size:.72rem;letter-spacing:.15em;text-transform:uppercase;color:var(--mu);margin-bottom:.5rem}
+.result-draw-date{font-family:var(--fd);font-size:1.1rem;color:var(--mu);margin-bottom:2rem}
+
+/* winning burst */
+.burst-wrap{position:relative;display:inline-flex;align-items:center;justify-content:center;width:100px;height:100px;margin:0 auto 1.5rem}
+.burst-ring{position:absolute;inset:0;border-radius:50%;border:1.5px solid}
+.burst-ring.r1{border-color:rgba(201,169,110,.25);animation:burstRing 3s ease-out infinite}
+.burst-ring.r2{border-color:rgba(201,169,110,.15);animation:burstRing 3s ease-out infinite .5s;inset:-12px}
+.burst-ring.r3{border-color:rgba(201,169,110,.08);animation:burstRing 3s ease-out infinite 1s;inset:-24px}
+@keyframes burstRing{0%{transform:scale(1);opacity:.8}100%{transform:scale(1.25);opacity:0}}
+.burst-core{width:72px;height:72px;border-radius:50%;display:flex;align-items:center;justify-content:center;position:relative;z-index:1}
+.burst-core.t5{background:linear-gradient(135deg,var(--gd),var(--gold));box-shadow:0 0 40px rgba(201,169,110,.4)}
+.burst-core.t4{background:linear-gradient(135deg,#9A7A4A,#C9A96E);box-shadow:0 0 30px rgba(201,169,110,.3)}
+.burst-core.t3{background:linear-gradient(135deg,var(--emd),var(--em));box-shadow:0 0 30px rgba(29,181,132,.3)}
+.burst-core.t0{background:linear-gradient(135deg,#2A2E3A,#3D4253);box-shadow:none}
+.burst-icon{font-size:1.8rem;color:#05080F}
+.result-headline{font-family:var(--fd);font-size:2rem;line-height:1.1;margin-bottom:.5rem}
+.result-headline em{color:var(--gold);font-style:italic}
+.result-tagline{font-size:.9rem;color:var(--mu);max-width:380px;margin:0 auto 2rem;line-height:1.6}
+
+/* number balls */
+.result-balls{display:flex;justify-content:center;gap:.5rem;margin-bottom:1.5rem;flex-wrap:wrap}
+.r-ball{width:50px;height:50px;border-radius:50%;border:2px solid var(--gb2);display:flex;align-items:center;justify-content:center;font-family:var(--fd);font-size:1.15rem;color:var(--mu);background:var(--bg3);position:relative;transition:all .5s}
+.r-ball.match{border-color:var(--gold);background:var(--gbg2);color:var(--gold);box-shadow:0 0 20px rgba(201,169,110,.35)}
+.r-ball.bonus{border-color:var(--em);background:var(--embg2);color:var(--em);box-shadow:0 0 20px rgba(29,181,132,.35)}
+.r-ball.match::after,.r-ball.bonus::after{content:'✓';position:absolute;bottom:-18px;left:50%;transform:translateX(-50%);font-size:.55rem;font-weight:700;letter-spacing:.05em}
+.r-ball.match::after{color:var(--gold)}
+.r-ball.bonus::after{color:var(--em)}
+.ball-sep{width:1px;height:50px;background:var(--gb2);border-radius:1px;align-self:center;margin:0 .1rem}
+
+/* match stats */
+.match-strip{display:flex;justify-content:center;gap:2rem;margin-bottom:1.5rem;flex-wrap:wrap}
+.ms-item{text-align:center}
+.ms-num{font-family:var(--fd);font-size:2.2rem;line-height:1}
+.ms-num.gold{color:var(--gold)}
+.ms-num.green{color:var(--em)}
+.ms-num.gray{color:var(--mu)}
+.ms-label{font-size:.68rem;letter-spacing:.07em;text-transform:uppercase;color:var(--mu);margin-top:.2rem}
+
+/* prize badges */
+.prize-row{display:flex;justify-content:center;gap:.6rem;flex-wrap:wrap}
+.prz-badge{display:flex;align-items:center;gap:.45rem;padding:.5rem 1.1rem;border-radius:.6rem;font-size:.8rem;font-weight:600}
+.prz-badge.win{background:var(--gbg2);border:1px solid rgba(201,169,110,.25);color:var(--gold)}
+.prz-badge.verify{background:var(--embg2);border:1px solid rgba(29,181,132,.2);color:var(--em);cursor:pointer;transition:all .2s}
+.prz-badge.verify:hover{background:var(--embg);transform:translateY(-1px)}
+.prz-badge.nowin{background:var(--g);border:1px solid var(--gb);color:var(--mu)}
+
+/* ── TIER BREAKDOWN ── */
+.tier-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.75rem}
+.tier-card{background:var(--bg3);border:1px solid var(--gb);border-radius:1.1rem;padding:1.1rem;text-align:center;position:relative;transition:all .3s;cursor:default}
+.tier-card:hover{border-color:var(--gb2)}
+.tier-card.active-tier{border-color:var(--gold);background:var(--gbg)}
+.tier-card.active-tier::before{content:'Your result';position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:var(--gold);color:#05080F;font-size:.58rem;font-weight:700;padding:2px 8px;border-radius:.3rem;letter-spacing:.06em;white-space:nowrap}
+.tier-match{font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--mu);margin-bottom:.4rem}
+.tier-pct{font-family:var(--fd);font-size:1.6rem;margin-bottom:.25rem}
+.tier-pct.gold{color:var(--gold)}
+.tier-pool{font-size:.72rem;color:var(--mu)}
+.tier-prize{font-size:.88rem;font-weight:600;color:var(--tx);margin-top:.3rem}
+
+/* ── HISTORY ROWS ── */
+.hist-row{display:flex;align-items:center;gap:1rem;padding:.85rem 1rem;background:var(--bg3);border:1px solid var(--gb);border-radius:1.1rem;transition:all .25s;margin-bottom:.55rem}
+.hist-row:hover{border-color:var(--gb2)}
+.hist-draw-id{font-size:.72rem;color:var(--mu);min-width:52px;flex-shrink:0}
+.hist-balls{display:flex;gap:.3rem;flex:1;flex-wrap:wrap}
+.h-ball{width:28px;height:28px;border-radius:50%;border:1px solid var(--gb2);display:flex;align-items:center;justify-content:center;font-family:var(--fd);font-size:.72rem;color:var(--mu);background:var(--bg4);flex-shrink:0}
+.h-ball.m{border-color:rgba(201,169,110,.45);color:var(--gold);background:var(--gbg)}
+.h-ball.b{border-color:rgba(29,181,132,.45);color:var(--em);background:var(--embg)}
+.h-ball.sep{background:transparent;border:none;width:6px}
+.hist-result{text-align:right;flex-shrink:0}
+.hist-win{font-size:.82rem;font-weight:700;color:var(--gold)}
+.hist-loss{font-size:.8rem;color:var(--fa)}
+.hist-date{font-size:.68rem;color:var(--mu);margin-top:.15rem}
+
+/* sidebar cards */
+.r-sidebar{display:flex;flex-direction:column;gap:1.25rem;position:sticky;top:calc(var(--nav)+2rem)}
+.pool-meter{margin-top:.75rem}
+.pool-row{display:flex;justify-content:space-between;margin-bottom:.45rem;font-size:.8rem}
+.pool-row span:first-child{color:var(--mu)}
+.pool-row span:last-child{font-weight:600}
+.pool-track{height:6px;background:var(--gb);border-radius:3px;overflow:hidden;margin-bottom:.9rem}
+.pool-fill{height:100%;border-radius:3px;transition:width 1.4s cubic-bezier(.4,0,.2,1)}
+.pool-fill.gold{background:linear-gradient(90deg,var(--gd),var(--gold))}
+.pool-fill.green{background:linear-gradient(90deg,var(--emd),var(--em))}
+.pool-fill.blue{background:linear-gradient(90deg,#1A5C9A,var(--blue))}
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:.6rem}
+.sg-item{background:var(--bg3);border:1px solid var(--gb);border-radius:1rem;padding:.85rem}
+.sg-num{font-family:var(--fd);font-size:1.5rem;line-height:1;margin-bottom:.15rem}
+.sg-label{font-size:.68rem;color:var(--mu)}
+
+/* ════════════════════════════════════
+   FEATURE 7 — WINNER VERIFICATION
+════════════════════════════════════ */
+.verify-layout{display:grid;grid-template-columns:1fr 300px;gap:1.5rem;align-items:start}
+.verify-col{display:flex;flex-direction:column;gap:1.5rem}
+
+/* ── STATUS STEPPER ── */
+.verify-stepper{background:var(--bg2);border:1px solid var(--gb);border-radius:1.75rem;padding:2rem;position:relative;overflow:hidden}
+.verify-stepper::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 40% at 50% 0%,rgba(29,181,132,.05),transparent)}
+.vs-steps{display:flex;align-items:center;justify-content:center;gap:0;margin-bottom:2rem;position:relative;z-index:1}
+.vs-step{display:flex;flex-direction:column;align-items:center;gap:.5rem;position:relative;z-index:1}
+.vs-circle{width:44px;height:44px;border-radius:50%;border:2px solid var(--gb2);display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:700;color:var(--mu);transition:all .5s cubic-bezier(.4,0,.2,1);position:relative;background:var(--bg3)}
+.vs-circle.done{border-color:var(--em);background:var(--embg2);color:var(--em)}
+.vs-circle.active{border-color:var(--gold);background:var(--gbg2);color:var(--gold);box-shadow:0 0 20px rgba(201,169,110,.2)}
+.vs-circle.pending{border-color:var(--gb);color:var(--fa)}
+.vs-label{font-size:.72rem;color:var(--mu);text-align:center;max-width:72px;line-height:1.3;transition:color .4s}
+.vs-label.done{color:var(--em)}
+.vs-label.active{color:var(--tx)}
+.vs-connector{flex:1;height:2px;background:var(--gb2);position:relative;overflow:hidden;min-width:36px;max-width:80px}
+.vs-connector-fill{position:absolute;inset:0;background:linear-gradient(90deg,var(--em),var(--gold));transform:scaleX(0);transform-origin:left;transition:transform .8s cubic-bezier(.4,0,.2,1)}
+.vs-connector-fill.filled{transform:scaleX(1)}
+
+/* upload zone */
+.upload-zone{border:2px dashed var(--gb2);border-radius:1.25rem;padding:2.5rem 2rem;text-align:center;cursor:pointer;transition:all .35s;position:relative;overflow:hidden;background:var(--g)}
+.upload-zone:hover,.upload-zone.drag{border-color:var(--gold);background:var(--gbg)}
+.upload-zone.has-file{border-color:var(--em);border-style:solid;background:var(--embg)}
+.upload-icon{width:56px;height:56px;border-radius:1rem;background:var(--gbg2);border:1px solid rgba(201,169,110,.2);display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;transition:all .3s}
+.upload-zone:hover .upload-icon,.upload-zone.drag .upload-icon{transform:scale(1.08)}
+.upload-zone.has-file .upload-icon{background:var(--embg2);border-color:rgba(29,181,132,.2)}
+.upload-title{font-size:.95rem;font-weight:600;margin-bottom:.3rem}
+.upload-sub{font-size:.78rem;color:var(--mu)}
+.upload-types{font-size:.7rem;color:var(--fa);margin-top:.5rem}
+.file-preview{display:none;margin-top:1.25rem;padding:1rem;background:var(--embg);border:1px solid rgba(29,181,132,.2);border-radius:.9rem;text-align:left}
+.file-preview.show{display:flex;align-items:center;gap:.85rem}
+.fp-icon{width:36px;height:36px;border-radius:.6rem;background:var(--embg2);display:flex;align-items:center;justify-content:center;color:var(--em);flex-shrink:0}
+.fp-info{flex:1}
+.fp-name{font-size:.82rem;font-weight:500}
+.fp-size{font-size:.7rem;color:var(--mu)}
+.fp-remove{width:24px;height:24px;border-radius:.4rem;border:1px solid rgba(29,181,132,.2);background:transparent;color:var(--em);cursor:pointer;font-size:.75rem;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.fp-remove:hover{background:var(--rdbg2);border-color:var(--red);color:var(--red)}
+.upload-progress{margin-top:.9rem;display:none}
+.upload-progress.show{display:block}
+.up-label{display:flex;justify-content:space-between;font-size:.73rem;margin-bottom:.35rem}
+.up-label span:first-child{color:var(--mu)}
+.up-label span:last-child{color:var(--em)}
+.up-track{height:4px;background:var(--gb2);border-radius:2px;overflow:hidden}
+.up-fill{height:100%;background:linear-gradient(90deg,var(--emd),var(--em));width:0%;transition:width .05s linear;border-radius:2px}
+
+/* claim form */
+.claim-form{display:flex;flex-direction:column;gap:.9rem}
+.cf-row{display:grid;gap:.75rem}
+.cf-row.two{grid-template-columns:1fr 1fr}
+.cf-group{display:flex;flex-direction:column;gap:.35rem}
+.cf-label{font-size:.68rem;letter-spacing:.09em;text-transform:uppercase;color:var(--mu);font-weight:500}
+.cf-input{padding:.65rem .85rem;background:var(--bg4);border:1px solid var(--gb);border-radius:.75rem;color:var(--tx);font-family:var(--fb);font-size:.88rem;outline:none;transition:all .25s;width:100%}
+.cf-input:focus{border-color:var(--gold);background:var(--gbg)}
+.cf-input::placeholder{color:var(--fa)}
+.cf-select{padding:.65rem .85rem;background:var(--bg4);border:1px solid var(--gb);border-radius:.75rem;color:var(--tx);font-family:var(--fb);font-size:.88rem;outline:none;cursor:pointer;width:100%;appearance:none}
+.cf-select:focus{border-color:var(--gold)}
+.cf-note{font-size:.75rem;color:var(--mu);padding:.6rem .85rem;background:var(--blbg);border:1px solid rgba(45,139,222,.15);border-radius:.75rem;display:flex;align-items:flex-start;gap:.5rem;line-height:1.5}
+.cf-note svg{color:var(--blue);flex-shrink:0;margin-top:.1rem}
+.submit-verify-btn{width:100%;padding:.9rem;border-radius:2rem;border:none;background:var(--gold);color:#05080F;font-family:var(--fb);font-size:.9rem;font-weight:700;cursor:pointer;transition:all .3s;display:flex;align-items:center;justify-content:center;gap:.6rem;position:relative;overflow:hidden}
+.submit-verify-btn:hover{background:var(--gl);transform:translateY(-2px);box-shadow:0 14px 36px rgba(201,169,110,.3)}
+.submit-verify-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none}
+.svb-spinner{width:18px;height:18px;border:2px solid rgba(5,8,15,.25);border-top-color:#05080F;border-radius:50%;animation:spin .7s linear infinite;display:none}
+@keyframes spin{to{transform:rotate(360deg)}}
+.svb-spinner.show{display:block}
+
+/* ── STATUS TRACKER ── */
+.status-tracker{background:var(--bg2);border:1px solid var(--gb);border-radius:1.5rem;padding:1.5rem;position:relative;overflow:hidden}
+.st-title{font-family:var(--fd);font-size:1.1rem;margin-bottom:1.25rem}
+.st-item{display:flex;gap:.85rem;padding-bottom:1.25rem;position:relative}
+.st-item:last-child{padding-bottom:0}
+.st-item:not(:last-child)::after{content:'';position:absolute;left:15px;top:32px;bottom:0;width:1px;background:var(--gb2)}
+.st-dot{width:32px;height:32px;border-radius:50%;border:1.5px solid var(--gb2);display:flex;align-items:center;justify-content:center;font-size:.75rem;flex-shrink:0;position:relative;z-index:1;background:var(--bg3);transition:all .4s}
+.st-dot.done{border-color:var(--em);background:var(--embg2);color:var(--em)}
+.st-dot.active{border-color:var(--gold);background:var(--gbg2);color:var(--gold)}
+.st-dot.pending{border-color:var(--gb2);color:var(--fa)}
+.st-dot.active::after{content:'';position:absolute;inset:-4px;border-radius:50%;border:1px solid rgba(201,169,110,.3);animation:pulse-dot 2s ease-out infinite}
+@keyframes pulse-dot{0%{opacity:.8;transform:scale(1)}100%{opacity:0;transform:scale(1.4)}}
+.st-content{flex:1;padding-top:.2rem}
+.st-step-label{font-size:.82rem;font-weight:600;margin-bottom:.15rem;transition:color .4s}
+.st-step-label.done{color:var(--em)}
+.st-step-label.active{color:var(--tx)}
+.st-step-label.pending{color:var(--fa)}
+.st-step-desc{font-size:.73rem;color:var(--mu);line-height:1.5}
+.st-time{font-size:.68rem;color:var(--fa);margin-top:.2rem}
+
+/* pending submission card */
+.pending-card{background:var(--bg2);border:1px solid var(--gb);border-radius:1.5rem;padding:1.5rem}
+.pc-header{display:flex;align-items:center;gap:.75rem;margin-bottom:1.25rem}
+.pc-icon{width:44px;height:44px;border-radius:.9rem;display:flex;align-items:center;justify-content:center;font-size:1.2rem}
+.pc-icon.pending{background:var(--gbg2);border:1px solid rgba(201,169,110,.2)}
+.pc-icon.review{background:var(--blbg2);border:1px solid rgba(45,139,222,.2)}
+.pc-icon.approved{background:var(--embg2);border:1px solid rgba(29,181,132,.2)}
+.pc-meta{flex:1}
+.pc-name{font-size:.9rem;font-weight:600;margin-bottom:.15rem}
+.pc-draw{font-size:.73rem;color:var(--mu)}
+.pc-status{font-size:.7rem;font-weight:700;padding:3px 9px;border-radius:.4rem;letter-spacing:.06em}
+.pc-status.pending{background:var(--gbg2);color:var(--gold)}
+.pc-status.review{background:var(--blbg2);color:var(--blue)}
+.pc-status.approved{background:var(--embg2);color:var(--em)}
+.pc-progress{margin:1rem 0}
+.pcp-steps{display:flex;gap:.35rem}
+.pcp-step{flex:1;height:4px;border-radius:2px;background:var(--gb);overflow:hidden}
+.pcp-fill{height:100%;border-radius:2px;transition:width .8s cubic-bezier(.4,0,.2,1)}
+.pcp-fill.done{background:var(--em);width:100%}
+.pcp-fill.active{background:var(--gold);animation:pulseFill 2s ease-in-out infinite}
+@keyframes pulseFill{0%,100%{width:60%;opacity:.8}50%{width:85%;opacity:1}}
+.pcp-fill.pending{background:var(--gb2);width:0%}
+.pcp-labels{display:flex;justify-content:space-between;margin-top:.35rem;font-size:.62rem;color:var(--fa)}
+.pc-details{display:flex;flex-direction:column;gap:.5rem}
+.pcd-row{display:flex;justify-content:space-between;font-size:.78rem}
+.pcd-row span:first-child{color:var(--mu)}
+.pcd-row span:last-child{font-weight:500}
+
+/* success overlay */
+.success-overlay{position:fixed;inset:0;z-index:1000;background:rgba(5,8,15,.96);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .4s;backdrop-filter:blur(12px)}
+.success-overlay.show{opacity:1;pointer-events:all}
+.success-box{max-width:480px;width:100%;padding:3rem 2rem;text-align:center;position:relative}
+canvas.confetti{position:fixed;inset:0;pointer-events:none}
+.s-orb{width:120px;height:120px;border-radius:50%;margin:0 auto 2rem;position:relative;display:flex;align-items:center;justify-content:center}
+.s-ring{position:absolute;inset:0;border-radius:50%;border:1.5px solid rgba(201,169,110,.2);animation:sRing 2.5s ease-out infinite}
+.s-ring:nth-child(2){animation-delay:.5s;inset:-14px}
+.s-ring:nth-child(3){animation-delay:1s;inset:-28px}
+@keyframes sRing{0%{opacity:.7;transform:scale(1)}100%{opacity:0;transform:scale(1.25)}}
+.s-core{width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,var(--gd),var(--gold));display:flex;align-items:center;justify-content:center;position:relative;z-index:1;box-shadow:0 0 40px rgba(201,169,110,.4)}
+.s-check{font-size:2rem;color:#05080F}
+.s-title{font-family:var(--fd);font-size:2.4rem;margin-bottom:.75rem;opacity:0}
+.s-sub{color:var(--mu);font-size:.92rem;line-height:1.7;max-width:380px;margin:0 auto 2rem;opacity:0}
+.s-actions{display:flex;gap:.75rem;justify-content:center;opacity:0;flex-wrap:wrap}
+.s-btn-p{padding:.85rem 1.8rem;border-radius:3rem;border:none;background:var(--gold);color:#05080F;font-family:var(--fb);font-size:.88rem;font-weight:700;cursor:pointer;transition:all .3s}
+.s-btn-p:hover{background:var(--gl);transform:translateY(-2px)}
+.s-btn-g{padding:.85rem 1.5rem;border-radius:3rem;border:1.5px solid var(--gb2);background:transparent;color:var(--mu);font-family:var(--fb);font-size:.88rem;cursor:pointer;transition:all .3s}
+.s-btn-g:hover{border-color:var(--gb3);color:var(--tx)}
+
+/* TOAST */
+.toast-wrap{position:fixed;bottom:2rem;right:2rem;z-index:999;display:flex;flex-direction:column;gap:.55rem;pointer-events:none}
+.toast{display:flex;align-items:center;gap:.7rem;background:var(--bg2);border:1px solid var(--gb2);border-radius:1rem;padding:.8rem 1rem;font-size:.8rem;min-width:240px;transform:translateX(120%);transition:transform .4s cubic-bezier(.34,1.56,.64,1);pointer-events:all}
+.toast.show{transform:none}
+.t-ic{width:22px;height:22px;border-radius:.4rem;display:flex;align-items:center;justify-content:center;font-size:.72rem;flex-shrink:0}
+.t-ic.gold{background:var(--gbg2);color:var(--gold)}
+.t-ic.green{background:var(--embg2);color:var(--em)}
+.t-ic.red{background:var(--rdbg);color:var(--red)}
+.t-ic.blue{background:var(--blbg2);color:var(--blue)}
+.t-msg{flex:1;color:var(--tx)}
+.t-x{background:none;border:none;color:var(--fa);cursor:pointer;font-size:.9rem;padding:.15rem .3rem;transition:color .2s}
+.t-x:hover{color:var(--mu)}
+
+@media(max-width:1100px){.results-layout,.verify-layout{grid-template-columns:1fr}.r-sidebar{position:static}}
+@media(max-width:768px){.sidebar{display:none}.main{margin-left:0}.topbar{padding:0 1rem}.tier-grid{grid-template-columns:1fr 1fr}.cf-row.two{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <a href="dashboard.html" class="t-logo">Draw<span>Vault</span></a>
+  <div class="t-breadcrumb">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+    <span id="bc-label">Draw Results</span>
+  </div>
+  <div class="t-right">
+    <div class="tab-sw">
+      <button class="tab-b active" id="tb-results" onclick="switchTab('results',this)">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/></svg>
+        Draw Results
+      </button>
+      <button class="tab-b" id="tb-verify" onclick="switchTab('verify',this)">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+        Verify Win
+      </button>
+    </div>
+    <div class="t-avatar">JD</div>
+  </div>
+</div>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <p class="s-label">Navigation</p>
+  <a href="dashboard.html" class="s-item"style=" opacity: 1">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+    Dashboard
+  </a>
+  <a href="scores-draw.html" class="s-item"style=" opacity: 1">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20V10M18 20V4M6 20v-4"/></svg>
+    Scores & Draw
+  </a>
+  <div class="s-item active"style=" opacity: 1">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/></svg>
+    Results & Verify
+  </div>
+  <div class="s-item"style=" opacity: 1">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+    Charity
+  </div>
+  <p class="s-label">Account</p>
+  <div class="s-item"style=" opacity: 1" >
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14"/></svg>
+    Settings
+  </div>
+  <div class="s-bottom">
+    <div class="sub-pill">
+      <div class="sp-status"><span class="sp-dot"></span>ACTIVE</div>
+      <div class="sp-plan">DrawVault Pro</div>
+      <div class="sp-renew">Renews May 21, 2025</div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+<!-- ══════════════════════════════════════
+     SECTION 1 — DRAW RESULTS (Feature 6)
+══════════════════════════════════════ -->
+<div class="section active" id="sec-results">
+  <div class="p-hdr">
+    <div class="p-hdr-l">
+      <p class="eyebrow">Feature 6 — Draw Results</p>
+      <h1 class="ptitle">Draw #12 — <em>May 2025</em></h1>
+      <p class="psub">Official results published April 29, 2025 · 8:00 PM GMT</p>
+    </div>
+    <div class="p-hdr-r">
+      <button class="btn-g" onclick="switchDrawResult(0)">No Match</button>
+      <button class="btn-g" onclick="switchDrawResult(3)">3 Match</button>
+      <button class="btn-g" onclick="switchDrawResult(4)">4 Match</button>
+      <button class="btn-p" onclick="switchTab('verify',document.getElementById('tb-verify'))">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+        Verify Win
+      </button>
+    </div>
+  </div>
+
+  <div class="results-layout">
+    <div class="results-col">
+
+      <!-- HERO RESULT -->
+      <div class="result-hero" id="result-hero">
+        <p class="result-draw-label">Draw #12 · May 2025</p>
+        <p class="result-draw-date">Tuesday, 29 April 2025</p>
+        <div class="burst-wrap" id="burst-wrap">
+          <div class="burst-ring r1"></div>
+          <div class="burst-ring r2"></div>
+          <div class="burst-ring r3"></div>
+          <div class="burst-core t4" id="burst-core"><span class="burst-icon" id="burst-icon">★</span></div>
+        </div>
+        <h2 class="result-headline" id="r-headline">4 Numbers <em>Matched!</em></h2>
+        <p class="result-tagline" id="r-tagline">You matched 4 main numbers this draw. Claim your 4-match prize and upload proof to begin verification.</p>
+        <div class="result-balls" id="result-balls"></div>
+        <div class="match-strip" id="match-strip">
+          <div class="ms-item"><div class="ms-num gold" id="ms-main">4</div><div class="ms-label">Main matches</div></div>
+          <div class="ms-item"><div class="ms-num green" id="ms-bonus">0</div><div class="ms-label">Bonus match</div></div>
+          <div class="ms-item"><div class="ms-num gold" id="ms-tier">4 Match</div><div class="ms-label">Prize tier</div></div>
+        </div>
+        <div class="prize-row" id="r-prize-row"></div>
+      </div>
+
+      <!-- TIER BREAKDOWN -->
+      <div class="card">
+        <div class="c-hdr">
+          <div class="c-title-row">
+            <div class="c-ic gold"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></div>
+            <div><div class="c-ttl">Prize Tier Breakdown</div><div class="c-sub">Draw #12 prize pool: $12,000</div></div>
+          </div>
+        </div>
+        <div class="tier-grid" id="tier-grid">
+          <div class="tier-card" id="tc-5">
+            <div class="tier-match">5 Match</div>
+            <div class="tier-pct gold">40%</div>
+            <div class="tier-pool">of prize pool</div>
+            <div class="tier-prize">$4,800</div>
+          </div>
+          <div class="tier-card active-tier" id="tc-4">
+            <div class="tier-match">4 Match</div>
+            <div class="tier-pct gold">35%</div>
+            <div class="tier-pool">of prize pool</div>
+            <div class="tier-prize">$840</div>
+          </div>
+          <div class="tier-card" id="tc-3">
+            <div class="tier-match">3 Match</div>
+            <div class="tier-pct" style="color:var(--em)">25%</div>
+            <div class="tier-pool">of prize pool</div>
+            <div class="tier-prize">$60 / winner</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- DRAW HISTORY -->
+      <div class="card">
+        <div class="c-hdr">
+          <div class="c-title-row">
+            <div class="c-ic blue"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg></div>
+            <div><div class="c-ttl">Draw History</div><div class="c-sub">Your last 5 results</div></div>
+          </div>
+        </div>
+        <div id="draw-hist-container"></div>
+      </div>
+
+    </div>
+
+    <!-- RESULTS SIDEBAR -->
+    <div class="r-sidebar">
+      <div class="card">
+        <div class="c-hdr"><div class="c-title-row"><div class="c-ic gold"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/></svg></div><div class="c-ttl">Your Stats</div></div></div>
+        <div class="stats-grid">
+          <div class="sg-item"><div class="sg-num" style="color:var(--gold)" id="sg-draws">12</div><div class="sg-label">Draws entered</div></div>
+          <div class="sg-item"><div class="sg-num" style="color:var(--em)" id="sg-wins">2</div><div class="sg-label">Total wins</div></div>
+          <div class="sg-item"><div class="sg-num" style="color:var(--blue)">16.6%</div><div class="sg-label">Win rate</div></div>
+          <div class="sg-item"><div class="sg-num" style="color:var(--gold)">$340</div><div class="sg-label">Total prizes</div></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="c-hdr"><div class="c-title-row"><div class="c-ic blue"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></div><div class="c-ttl">Pool Distribution</div></div></div>
+        <div class="pool-meter">
+          <div class="pool-row"><span>Prize pool</span><span>$12,000</span></div>
+          <div class="pool-track"><div class="pool-fill gold" id="pool-prize" style="width:0%"></div></div>
+          <div class="pool-row"><span>Charity fund</span><span>$7,200</span></div>
+          <div class="pool-track"><div class="pool-fill green" id="pool-charity" style="width:0%"></div></div>
+          <div class="pool-row"><span>Operations</span><span>$4,800</span></div>
+          <div class="pool-track"><div class="pool-fill blue" id="pool-ops" style="width:0%"></div></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="c-hdr"><div class="c-title-row"><div class="c-ic green"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 11l3 3L22 4"/></svg></div><div class="c-ttl">Drawn Numbers</div></div></div>
+        <div style="display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.25rem" id="drawn-official"></div>
+        <div style="margin-top:1rem;font-size:.73rem;color:var(--mu)">Next draw in <strong style="color:var(--gold)">28 days</strong>. Your scores carry forward.</div>
+      </div>
+
+      <button class="btn-p" style="width:100%;justify-content:center" onclick="switchTab('verify',document.getElementById('tb-verify'))">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+        Verify My Win →
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SECTION 2 — WINNER VERIFICATION (Feature 7)
+══════════════════════════════════════ -->
+<div class="section" id="sec-verify">
+  <div class="p-hdr">
+    <div class="p-hdr-l">
+      <p class="eyebrow">Feature 7 — Winner Verification</p>
+      <h1 class="ptitle">Claim Your <em>Prize</em></h1>
+      <p class="psub">Upload your proof of play, complete your details, and track your claim in real-time.</p>
+    </div>
+    <div class="p-hdr-r">
+      <button class="btn-g" onclick="switchTab('results',document.getElementById('tb-results'))">← Back to Results</button>
+    </div>
+  </div>
+
+  <div class="verify-layout">
+    <div class="verify-col">
+
+      <!-- STATUS STEPPER -->
+      <div class="verify-stepper">
+        <div class="vs-steps">
+          <div class="vs-step">
+            <div class="vs-circle active" id="vs1">1</div>
+            <div class="vs-label active" id="vsl1">Upload Proof</div>
+          </div>
+          <div class="vs-connector"><div class="vs-connector-fill" id="vsc1"></div></div>
+          <div class="vs-step">
+            <div class="vs-circle pending" id="vs2">2</div>
+            <div class="vs-label pending" id="vsl2">Your Details</div>
+          </div>
+          <div class="vs-connector"><div class="vs-connector-fill" id="vsc2"></div></div>
+          <div class="vs-step">
+            <div class="vs-circle pending" id="vs3">3</div>
+            <div class="vs-label pending" id="vsl3">Admin Review</div>
+          </div>
+          <div class="vs-connector"><div class="vs-connector-fill" id="vsc3"></div></div>
+          <div class="vs-step">
+            <div class="vs-circle pending" id="vs4">4</div>
+            <div class="vs-label pending" id="vsl4">Payout</div>
+          </div>
+        </div>
+
+        <!-- STEP 1: Upload -->
+        <div id="vstep1">
+          <div class="c-hdr" style="margin-bottom:1rem">
+            <div class="c-title-row">
+              <div class="c-ic gold"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0018 9h-1.26A8 8 0 103 16.3"/></svg></div>
+              <div><div class="c-ttl">Upload Proof of Play</div><div class="c-sub">Scorecard, receipt, or official confirmation</div></div>
+            </div>
+          </div>
+          <div class="upload-zone" id="upload-zone" onclick="triggerUpload()" ondragover="handleDrag(event,true)" ondragleave="handleDrag(event,false)" ondrop="handleDrop(event)">
+            <div class="upload-icon" id="u-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0018 9h-1.26A8 8 0 103 16.3"/></svg>
+            </div>
+            <div class="upload-title" id="u-title">Drop your proof here</div>
+            <div class="upload-sub">or click to browse your files</div>
+            <div class="upload-types">Accepted: JPG, PNG, PDF, HEIC · Max 10MB</div>
+            <div class="file-preview" id="file-preview">
+              <div class="fp-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+              <div class="fp-info"><div class="fp-name" id="fp-name">—</div><div class="fp-size" id="fp-size">—</div></div>
+              <button class="fp-remove" onclick="removeFile(event)">✕</button>
+            </div>
+            <div class="upload-progress" id="upload-progress">
+              <div class="up-label"><span>Uploading</span><span id="up-pct">0%</span></div>
+              <div class="up-track"><div class="up-fill" id="up-fill"></div></div>
+            </div>
+          </div>
+          <input type="file" id="file-input" accept="image/*,.pdf" style="display:none" onchange="handleFileSelect(event)"/>
+          <button class="submit-verify-btn" id="step1-btn" disabled onclick="goVerifyStep(2)" style="margin-top:1rem;opacity:.5;cursor:not-allowed">
+            <span id="s1-txt">Continue to Your Details</span>
+            <div class="svb-spinner" id="s1-spin"></div>
+          </button>
+        </div>
+
+        <!-- STEP 2: Details -->
+        <div id="vstep2" style="display:none">
+          <div class="c-hdr" style="margin-bottom:1rem">
+            <div class="c-title-row">
+              <div class="c-ic gold"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+              <div><div class="c-ttl">Your Details</div><div class="c-sub">Required for prize disbursement</div></div>
+            </div>
+          </div>
+          <div class="claim-form">
+            <div class="cf-row two">
+              <div class="cf-group"><label class="cf-label">First name</label><input class="cf-input" type="text" placeholder="James" value="James"/></div>
+              <div class="cf-group"><label class="cf-label">Last name</label><input class="cf-input" type="text" placeholder="Doe" value="Doe"/></div>
+            </div>
+            <div class="cf-row">
+              <div class="cf-group"><label class="cf-label">Email address</label><input class="cf-input" type="email" placeholder="james@example.com" value="james@example.com"/></div>
+            </div>
+            <div class="cf-row two">
+              <div class="cf-group"><label class="cf-label">Draw number</label><input class="cf-input" type="text" value="Draw #12" readonly style="color:var(--mu)"/></div>
+              <div class="cf-group"><label class="cf-label">Tier claimed</label><input class="cf-input" type="text" value="4 Match — $840" readonly style="color:var(--gold)"/></div>
+            </div>
+            <div class="cf-row">
+              <div class="cf-group">
+                <label class="cf-label">Payout method</label>
+                <select class="cf-select" id="payout-method">
+                  <option value="">Select payout method…</option>
+                  <option value="bank" selected>Bank transfer</option>
+                  <option value="paypal">PayPal</option>
+                  <option value="stripe">Stripe / Card</option>
+                  <option value="crypto">Cryptocurrency</option>
+                </select>
+              </div>
+            </div>
+            <div class="cf-row">
+              <div class="cf-group"><label class="cf-label">Account / reference</label><input class="cf-input" type="text" placeholder="Bank account or PayPal email"/></div>
+            </div>
+            <div class="cf-note">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+              Prize payments are processed within 3–5 business days after admin approval. All payouts are subject to identity verification for prizes over $500.
+            </div>
+            <button class="submit-verify-btn" onclick="goVerifyStep(3)">
+              <span>Submit Claim for Review</span>
+            </button>
+          </div>
+          <button onclick="goVerifyStep(1)" style="width:100%;margin-top:.6rem;padding:.6rem;border-radius:2rem;border:none;background:transparent;color:var(--mu);font-family:var(--fb);font-size:.8rem;cursor:pointer;transition:color .2s" onmouseover="this.style.color='var(--tx)'" onmouseout="this.style.color='var(--mu)'">← Back to Upload</button>
+        </div>
+
+        <!-- STEP 3: Submitted confirmation -->
+        <div id="vstep3" style="display:none;text-align:center;padding:1rem 0">
+          <div style="font-size:3rem;margin-bottom:1rem">📬</div>
+          <h3 style="font-family:var(--fd);font-size:1.4rem;margin-bottom:.5rem">Claim submitted!</h3>
+          <p style="font-size:.85rem;color:var(--mu);line-height:1.7;max-width:380px;margin:0 auto 1.5rem">Your claim is now in the admin review queue. You'll receive an email within 24 hours with the outcome.</p>
+          <div style="display:flex;gap:.75rem;justify-content:center;flex-wrap:wrap">
+            <button class="btn-p" onclick="showSuccessOverlay()">View Status Dashboard</button>
+            <button class="btn-g" onclick="switchTab('results',document.getElementById('tb-results'))">Back to Results</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- STATUS TRACKER -->
+      <div class="status-tracker" id="status-tracker">
+        <h3 class="st-title">Claim Status — Draw #10</h3>
+        <div class="st-item">
+          <div class="st-dot done">✓</div>
+          <div class="st-content">
+            <div class="st-step-label done">Proof Uploaded</div>
+            <div class="st-step-desc">Scorecard photo accepted. File size 2.1MB.</div>
+            <div class="st-time">Mar 2, 2025 · 7:14 PM</div>
+          </div>
+        </div>
+        <div class="st-item">
+          <div class="st-dot done">✓</div>
+          <div class="st-content">
+            <div class="st-step-label done">Details Submitted</div>
+            <div class="st-step-desc">Bank transfer details received and encrypted.</div>
+            <div class="st-time">Mar 2, 2025 · 7:16 PM</div>
+          </div>
+        </div>
+        <div class="st-item">
+          <div class="st-dot done">✓</div>
+          <div class="st-content">
+            <div class="st-step-label done">Admin Approved</div>
+            <div class="st-step-desc">Claim verified by DrawVault admin team.</div>
+            <div class="st-time">Mar 3, 2025 · 11:42 AM</div>
+          </div>
+        </div>
+        <div class="st-item">
+          <div class="st-dot done">✓</div>
+          <div class="st-content">
+            <div class="st-step-label done">Prize Paid</div>
+            <div class="st-step-desc">$280.00 transferred to your bank account.</div>
+            <div class="st-time">Mar 5, 2025 · 2:00 PM</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- VERIFY SIDEBAR -->
+    <div class="r-sidebar" style="position:sticky;top:calc(var(--nav) + 2rem)">
+
+      <!-- Active claim -->
+      <div class="pending-card" id="active-claim">
+        <div class="pc-header">
+          <div class="pc-icon pending">📋</div>
+          <div class="pc-meta">
+            <div class="pc-name">Draw #12 Claim</div>
+            <div class="pc-draw">4 Match · $840 prize</div>
+          </div>
+          <span class="pc-status pending" id="claim-status-badge">PENDING</span>
+        </div>
+        <div class="pc-progress">
+          <div class="pcp-steps">
+            <div class="pcp-step"><div class="pcp-fill done" id="pf1"></div></div>
+            <div class="pcp-step"><div class="pcp-fill pending" id="pf2"></div></div>
+            <div class="pcp-step"><div class="pcp-fill pending" id="pf3"></div></div>
+            <div class="pcp-step"><div class="pcp-fill pending" id="pf4"></div></div>
+          </div>
+          <div class="pcp-labels"><span>Upload</span><span>Details</span><span>Review</span><span>Paid</span></div>
+        </div>
+        <div class="pc-details">
+          <div class="pcd-row"><span>Prize tier</span><span style="color:var(--gold)">4 Match</span></div>
+          <div class="pcd-row"><span>Prize amount</span><span>$840.00</span></div>
+          <div class="pcd-row"><span>Draw date</span><span>Apr 29, 2025</span></div>
+          <div class="pcd-row"><span>Current step</span><span id="current-step-label" style="color:var(--gold)">Upload proof</span></div>
+        </div>
+      </div>
+
+      <!-- Past claim -->
+      <div class="pending-card">
+        <div class="pc-header">
+          <div class="pc-icon approved">✅</div>
+          <div class="pc-meta">
+            <div class="pc-name">Draw #10 Claim</div>
+            <div class="pc-draw">4 Match · $280 prize</div>
+          </div>
+          <span class="pc-status approved">PAID</span>
+        </div>
+        <div class="pc-progress">
+          <div class="pcp-steps">
+            <div class="pcp-step"><div class="pcp-fill done"></div></div>
+            <div class="pcp-step"><div class="pcp-fill done"></div></div>
+            <div class="pcp-step"><div class="pcp-fill done"></div></div>
+            <div class="pcp-step"><div class="pcp-fill done"></div></div>
+          </div>
+          <div class="pcp-labels"><span>Upload</span><span>Details</span><span>Review</span><span>Paid</span></div>
+        </div>
+        <div class="pc-details">
+          <div class="pcd-row"><span>Paid out</span><span style="color:var(--em)">Mar 5, 2025</span></div>
+          <div class="pcd-row"><span>Method</span><span>Bank transfer</span></div>
+          <div class="pcd-row"><span>Amount</span><span style="color:var(--em)">$280.00</span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="c-hdr"><div class="c-title-row"><div class="c-ic blue"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg></div><div class="c-ttl">Verification Timeline</div></div></div>
+        <div style="display:flex;flex-direction:column;gap:.6rem;font-size:.78rem">
+          <div style="display:flex;justify-content:space-between"><span style="color:var(--mu)">Upload accepted</span><span style="color:var(--em)">Instant</span></div>
+          <div style="display:flex;justify-content:space-between"><span style="color:var(--mu)">Admin review</span><span>Up to 24 hrs</span></div>
+          <div style="display:flex;justify-content:space-between"><span style="color:var(--mu)">Prize payout</span><span>3–5 business days</span></div>
+          <div style="display:flex;justify-content:space-between"><span style="color:var(--mu)">Large prizes (&gt;$500)</span><span>ID verification</span></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+</div><!-- /main -->
+
+<!-- SUCCESS OVERLAY -->
+<div class="success-overlay" id="success-overlay">
+  <canvas class="confetti" id="confetti-c"></canvas>
+  <div class="success-box">
+    <div class="s-orb">
+      <div class="s-ring"></div><div class="s-ring"></div><div class="s-ring"></div>
+      <div class="s-core"><span class="s-check">✓</span></div>
+    </div>
+    <h2 class="s-title">Claim Submitted!</h2>
+    <p class="s-sub">Your winner verification claim for Draw #12 is under review. You'll hear back within 24 hours — we'll email you at james@example.com.</p>
+    <div class="s-actions">
+      <button class="s-btn-p" onclick="document.getElementById('success-overlay').classList.remove('show')">View My Claims</button>
+      <button class="s-btn-g" onclick="window.location.href='dashboard.html'">Go to Dashboard</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast-wrap" id="toast-wrap"></div>
+
+<script>
+gsap.registerPlugin(ScrollTrigger);
+
+/* ════ DATA ════ */
+const MY_NUMBERS   = [7, 14, 22, 31, 38, 42];
+const DRAWN_SETS = {
+  4: {main:[7,14,22,31,44], bonus:9,  mainMatches:4, bonusMatch:0},
+  3: {main:[7,14,22,36,44], bonus:9,  mainMatches:3, bonusMatch:0},
+  0: {main:[3,11,27,36,44], bonus:19, mainMatches:0, bonusMatch:0},
+};
+let currentResult = 4;
+
+const DRAW_HISTORY_DATA = [
+  {id:'#12',main:[7,14,22,31,44],bonus:9,  myNums:MY_NUMBERS, matches:4, won:true,  prize:'$840',  date:'Apr 29'},
+  {id:'#11',main:[4,12,22,31,38],bonus:9,  myNums:MY_NUMBERS, matches:2, won:false, prize:null,    date:'Mar 29'},
+  {id:'#10',main:[7,14,22,36,44],bonus:42, myNums:MY_NUMBERS, matches:4, won:true,  prize:'$280',  date:'Feb 28'},
+  {id:'#9', main:[3,19,27,33,41],bonus:15, myNums:MY_NUMBERS, matches:1, won:false, prize:null,    date:'Jan 29'},
+  {id:'#8', main:[7,22,29,38,45],bonus:14, myNums:MY_NUMBERS, matches:3, won:true,  prize:'$60',   date:'Dec 29'},
+];
+
+/* ════ TAB SWITCHER ════ */
+function switchTab(tab, btn){
+  document.querySelectorAll('.tab-b').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.getElementById('sec-'+tab).classList.add('active');
+  document.getElementById('bc-label').textContent = tab==='results'?'Draw Results':'Verify Win';
+  if(tab==='results') initResultsAnimations();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+/* ════ RESULTS ════ */
+function switchDrawResult(matches){
+  currentResult = matches;
+  renderResultHero(matches);
+  updateTierHighlight(matches);
+  toast(`Showing ${matches===0?'no match':matches+'-match'} result`,'blue','◎');
+}
+
+function renderResultHero(matches){
+  const set = DRAWN_SETS[matches] || DRAWN_SETS[4];
+  const drawnMain = set.main;
+  const drawnBonus = set.bonus;
+  const all = [...drawnMain, drawnBonus];
+
+  // headline
+  const configs = {
+    4:{hl:'4 Numbers <em>Matched!</em>',tl:'You matched 4 main numbers this draw. Claim your 4-match prize.',coreClass:'t4',icon:'★',heroClass:'win4',prizes:[{cls:'win',t:'$840 prize — 4 Match tier'},{cls:'verify',t:'Verify to claim ↗',fn:"switchTab('verify',document.getElementById('tb-verify'))"}]},
+    3:{hl:'3 Numbers <em>Matched!</em>',tl:'You matched 3 main numbers. You qualify for the 3-match prize tier!',coreClass:'t3',icon:'✦',heroClass:'win3',prizes:[{cls:'win',t:'$60 prize — 3 Match tier'},{cls:'verify',t:'Verify to claim ↗',fn:"switchTab('verify',document.getElementById('tb-verify'))"}]},
+    0:{hl:'No <em>Match</em> This Draw',tl:'No numbers matched this time. Your scores carry forward to next month — keep going.',coreClass:'t0',icon:'○',heroClass:'',prizes:[{cls:'nowin',t:'No prize this round'},{cls:'nowin',t:'Next draw in 28 days'}]},
+  };
+  const cfg = configs[matches]||configs[0];
+
+  document.getElementById('r-headline').innerHTML = cfg.hl;
+  document.getElementById('r-tagline').textContent = cfg.tl.replace(/<[^>]+>/g,'');
+  const core = document.getElementById('burst-core');
+  core.className = 'burst-core '+cfg.coreClass;
+  document.getElementById('burst-icon').textContent = cfg.icon;
+  const hero = document.getElementById('result-hero');
+  hero.className = 'result-hero '+cfg.heroClass;
+  document.getElementById('ms-main').textContent = matches;
+  document.getElementById('ms-bonus').textContent = set.bonusMatch||0;
+  document.getElementById('ms-tier').textContent = matches>=3?matches+' Match':'No match';
+
+  // balls
+  const ballsHtml = MY_NUMBERS.map((n,i)=>{
+    const isBonus = i===5;
+    const matchMain = drawnMain.includes(n)&&!isBonus;
+    const matchBonus = isBonus && drawnBonus===n;
+    return `<div class="r-ball${matchMain?' match':''}${matchBonus?' bonus':''}" style="animation-delay:${i*80}ms">${n}</div>`
+  }).join('')+'<div class="ball-sep"></div>'+`<div class="r-ball${drawnBonus===MY_NUMBERS[5]?' bonus':''}">${MY_NUMBERS[5]}</div>`;
+  document.getElementById('result-balls').innerHTML = ballsHtml;
+  gsap.from('#result-balls .r-ball',{scale:0,opacity:0,stagger:.07,duration:.5,ease:'back.out(2)',delay:.1});
+
+  // prizes
+  document.getElementById('r-prize-row').innerHTML = cfg.prizes.map(p=>
+    `<div class="prz-badge ${p.cls}" ${p.fn?`onclick="${p.fn}"`:''} >${p.t}</div>`
+  ).join('');
+
+  // official drawn numbers sidebar
+  document.getElementById('drawn-official').innerHTML = all.map((n,i)=>{
+    const isBonus = i===5;
+    const cls = MY_NUMBERS.includes(n)?(isBonus?' bonus':' match'):'';
+    return `<div style="width:34px;height:34px;border-radius:50%;border:1.5px solid ${isBonus?'rgba(29,181,132,.35)':'rgba(255,255,255,.12)'};display:flex;align-items:center;justify-content:center;font-family:var(--fd);font-size:.9rem;color:${MY_NUMBERS.includes(n)?(isBonus?'var(--em)':'var(--gold)'):'var(--mu)'};background:var(--bg3);${MY_NUMBERS.includes(n)?'box-shadow:0 0 12px rgba(201,169,110,.25)':''}">${n}</div>`;
+  }).join('');
+}
+
+function updateTierHighlight(matches){
+  ['tc-5','tc-4','tc-3'].forEach(id=>document.getElementById(id).classList.remove('active-tier'));
+  if(matches===5) document.getElementById('tc-5').classList.add('active-tier');
+  else if(matches===4) document.getElementById('tc-4').classList.add('active-tier');
+  else if(matches===3) document.getElementById('tc-3').classList.add('active-tier');
+}
+
+function renderDrawHistory(){
+  const c = document.getElementById('draw-hist-container');
+  c.innerHTML = DRAW_HISTORY_DATA.map(d=>{
+    const allBalls = [...d.main, d.bonus];
+    const balls = allBalls.map((n,i)=>{
+      const isBonus = i===5;
+      const hit = d.myNums.includes(n);
+      return `<div class="h-ball${hit?(isBonus?' b':' m'):''}">${n}</div>`;
+    }).join('<div class="h-ball sep"></div>');
+    return `<div class="hist-row">
+      <div class="hist-draw-id">Draw ${d.id}</div>
+      <div class="hist-balls">${balls}</div>
+      <div class="hist-result">
+        <div class="${d.won?'hist-win':'hist-loss'}">${d.won?d.prize:'—'}</div>
+        <div class="hist-date">${d.date}</div>
+      </div>
+    </div>`;
+  }).join('');
+  gsap.from('.hist-row',{opacity:0,x:-14,stagger:.07,duration:.4,ease:'power2.out',delay:.3});
+}
+
+function initResultsAnimations(){
+  gsap.from('.result-hero',{opacity:0,y:24,duration:.7,ease:'power3.out',delay:.1});
+  gsap.from('#result-balls .r-ball',{scale:0,opacity:0,stagger:.06,duration:.45,ease:'back.out(2)',delay:.4});
+  gsap.from('.tier-card',{opacity:0,y:16,stagger:.1,duration:.5,ease:'power3.out',delay:.35});
+  gsap.from('.r-sidebar .card,.r-sidebar .btn-p',{opacity:0,x:16,stagger:.08,duration:.5,ease:'power3.out',delay:.4});
+  // pool bars
+  setTimeout(()=>{
+    gsap.to('#pool-prize',{width:'50%',duration:1.2,ease:'power3.out'});
+    gsap.to('#pool-charity',{width:'30%',duration:1.2,ease:'power3.out',delay:.15});
+    gsap.to('#pool-ops',{width:'20%',duration:1.2,ease:'power3.out',delay:.3});
+  },600);
+  renderDrawHistory();
+}
+
+/* ════ VERIFY ════ */
+let verifyStep = 1;
+let fileUploaded = false;
+
+function goVerifyStep(step){
+  const old = verifyStep; verifyStep = step;
+  // hide old step
+  gsap.to('#vstep'+old,{opacity:0,x:-20,duration:.35,ease:'power2.in',onComplete:()=>{
+    document.getElementById('vstep'+old).style.display='none';
+    const el = document.getElementById('vstep'+step);
+    el.style.display='block';
+    gsap.fromTo(el,{opacity:0,x:20},{opacity:1,x:0,duration:.45,ease:'power3.out'});
+  }});
+  updateVerifyStepper(step);
+  updateClaimCard(step);
+  if(step===3) setTimeout(()=>{showSuccessOverlay();},800);
+}
+
+function updateVerifyStepper(step){
+  for(let i=1;i<=4;i++){
+    const c = document.getElementById('vs'+i);
+    const l = document.getElementById('vsl'+i);
+    c.className = 'vs-circle '+(i<step?'done':i===step?'active':'pending');
+    l.className = 'vs-label '+(i<step?'done':i===step?'active':'pending');
+    if(i<step){c.textContent='✓';}else{c.textContent=i;}
+    const fill = document.getElementById('vsc'+i);
+    if(fill) gsap.to(fill,{scaleX:i<step?1:0,duration:.5,ease:'power2.inOut'});
+  }
+}
+
+function updateClaimCard(step){
+  const labels=['Upload proof','Your details','Admin review','Payout'];
+  document.getElementById('current-step-label').textContent = labels[step-1]||'Complete';
+  ['pf1','pf2','pf3','pf4'].forEach((id,i)=>{
+    const el = document.getElementById(id);
+    if(!el) return;
+    el.className = 'pcp-fill '+(i+1<step?'done':i+1===step?'active':'pending');
+  });
+}
+
+/* file upload simulation */
+function triggerUpload(){
+  if(!fileUploaded) document.getElementById('file-input').click();
+}
+function handleDrag(e,enter){
+  e.preventDefault();
+  document.getElementById('upload-zone').classList.toggle('drag',enter);
+}
+function handleDrop(e){
+  e.preventDefault();
+  document.getElementById('upload-zone').classList.remove('drag');
+  const file = e.dataTransfer.files[0];
+  if(file) processFile(file);
+}
+function handleFileSelect(e){
+  const file = e.target.files[0];
+  if(file) processFile(file);
+}
+function processFile(file){
+  const preview = document.getElementById('file-preview');
+  document.getElementById('fp-name').textContent = file.name;
+  document.getElementById('fp-size').textContent = (file.size/1024).toFixed(1)+' KB';
+  preview.classList.add('show');
+  document.getElementById('upload-zone').classList.add('has-file');
+  document.getElementById('u-title').textContent = 'File ready to upload';
+  document.getElementById('u-icon').innerHTML = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>';
+  // simulate upload progress
+  const prog = document.getElementById('upload-progress');
+  prog.classList.add('show');
+  const fill = document.getElementById('up-fill');
+  const pctEl = document.getElementById('up-pct');
+  let pct = 0;
+  const iv = setInterval(()=>{
+    pct += Math.random()*12+3;
+    if(pct>=100){pct=100;clearInterval(iv);
+      prog.style.display='none';
+      fileUploaded=true;
+      const btn = document.getElementById('step1-btn');
+      btn.disabled=false;btn.style.opacity='1';btn.style.cursor='pointer';
+      toast('Proof uploaded successfully','green','✓');
+    }
+    fill.style.width=pct+'%';
+    pctEl.textContent=Math.min(100,Math.round(pct))+'%';
+  },80);
+}
+function removeFile(e){
+  e.stopPropagation();
+  document.getElementById('file-preview').classList.remove('show');
+  document.getElementById('upload-zone').classList.remove('has-file');
+  document.getElementById('u-title').textContent='Drop your proof here';
+  document.getElementById('u-icon').innerHTML='<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0018 9h-1.26A8 8 0 103 16.3"/></svg>';
+  document.getElementById('upload-progress').classList.remove('show');
+  const btn=document.getElementById('step1-btn');
+  btn.disabled=true;btn.style.opacity='.5';btn.style.cursor='not-allowed';
+  fileUploaded=false;
+}
+
+/* success overlay */
+function showSuccessOverlay(){
+  const ov=document.getElementById('success-overlay');
+  ov.classList.add('show');
+  confettiBurst();
+  gsap.set('.s-title,.s-sub,.s-actions',{y:20,opacity:0});
+  gsap.to('.s-title',{y:0,opacity:1,duration:.7,delay:.3,ease:'power3.out'});
+  gsap.to('.s-sub',{y:0,opacity:1,duration:.6,delay:.5,ease:'power3.out'});
+  gsap.to('.s-actions',{y:0,opacity:1,duration:.6,delay:.7,ease:'power3.out'});
+}
+function confettiBurst(){
+  const c=document.getElementById('confetti-c');
+  const ctx=c.getContext('2d');
+  c.width=window.innerWidth;c.height=window.innerHeight;
+  const pieces=[];
+  const cols=['#C9A96E','#E8C98A','#1DB584','#9A7A4A','#EEE9DE','#2D8BDE'];
+  for(let i=0;i<180;i++){
+    pieces.push({
+      x:Math.random()*c.width,y:-30-Math.random()*300,
+      w:5+Math.random()*6,h:9+Math.random()*9,
+      col:cols[Math.floor(Math.random()*cols.length)],
+      rot:Math.random()*360,rs:Math.random()*5-2.5,
+      sp:2.5+Math.random()*5,dr:Math.random()*1.5-.75,op:1
+    });
+  }
+  let f=0;
+  (function loop(){
+    ctx.clearRect(0,0,c.width,c.height);
+    pieces.forEach(p=>{
+      p.y+=p.sp;p.x+=p.dr;p.rot+=p.rs;
+      if(p.y>c.height) p.op-=.025;
+      if(p.op>0){ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.rot*Math.PI/180);ctx.globalAlpha=p.op;ctx.fillStyle=p.col;ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h);ctx.restore();}
+    });
+    if(++f<320) requestAnimationFrame(loop);
+  })();
+}
+
+/* ════ TOAST ════ */
+function toast(msg,color,icon){
+  const c=document.getElementById('toast-wrap');
+  const t=document.createElement('div');
+  t.className='toast';
+  t.innerHTML=`<div class="t-ic ${color}">${icon}</div><span class="t-msg">${msg}</span><button class="t-x" onclick="this.parentElement.remove()">✕</button>`;
+  c.appendChild(t);
+  requestAnimationFrame(()=>requestAnimationFrame(()=>t.classList.add('show')));
+  setTimeout(()=>{t.classList.remove('show');setTimeout(()=>t.remove(),500)},4500);
+}
+
+/* ════ INIT ════ */
+renderResultHero(4);
+initResultsAnimations();
+
+// sidebar & nav entrance
+gsap.from('.s-item',{opacity:0,x:-12,stagger:.05,duration:.4,ease:'power2.out',delay:.1});
+gsap.from('.p-hdr',{opacity:0,y:18,duration:.6,ease:'power3.out',delay:.15});
+</script>
+</body>
+</html>

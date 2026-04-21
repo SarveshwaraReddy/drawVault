@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>DrawVault — Charity Centre</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --gold:#C9A96E;--gl:#E8C98A;--gd:#9A7A4A;--gbg:rgba(201,169,110,.07);--gbg2:rgba(201,169,110,.14);
+  --em:#1DB584;--emd:#0F6A50;--embg:rgba(29,181,132,.07);--embg2:rgba(29,181,132,.14);
+  --red:#E24B4A;--rdbg:rgba(226,75,74,.08);
+  --blue:#2D8BDE;--blbg:rgba(45,139,222,.08);--blbg2:rgba(45,139,222,.14);
+  --bg:#05080F;--bg2:#080D18;--bg3:#0C1220;--bg4:#0F1628;
+  --g:rgba(255,255,255,.04);--gb:rgba(255,255,255,.07);--gb2:rgba(255,255,255,.12);--gb3:rgba(255,255,255,.2);
+  --tx:#EEE9DE;--mu:#8A8784;--fa:#3D3C3A;--fa2:#1C1E24;
+  --fd:'DM Serif Display',serif;--fb:'Outfit',sans-serif;
+  --nav:64px;--side:240px;
+}
+html,body{min-height:100%;background:var(--bg);color:var(--tx);font-family:var(--fb);overflow-x:hidden}
+::-webkit-scrollbar{width:3px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--fa);border-radius:2px}
+
+/* NAV */
+.topbar{position:fixed;top:0;left:0;right:0;height:var(--nav);z-index:200;background:rgba(5,8,15,.92);backdrop-filter:blur(24px);border-bottom:1px solid var(--gb);display:flex;align-items:center;padding:0 1.5rem;gap:1.5rem}
+.t-logo{font-family:var(--fd);font-size:1.35rem;color:var(--gold);text-decoration:none}
+.t-logo span{color:var(--tx);font-style:italic}
+.t-bc{display:flex;align-items:center;gap:.5rem;font-size:.8rem;color:var(--mu)}
+.t-bc span{color:var(--tx);font-weight:500}
+.t-right{margin-left:auto;display:flex;align-items:center;gap:.9rem}
+.t-avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--gd),var(--gold));display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;color:#05080F}
+.notif-btn{width:34px;height:34px;border-radius:50%;background:var(--g);border:1px solid var(--gb);display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative}
+.n-dot{position:absolute;top:6px;right:6px;width:6px;height:6px;border-radius:50%;background:var(--gold);border:1.5px solid var(--bg)}
+
+/* SIDEBAR */
+.sidebar{position:fixed;top:var(--nav);left:0;bottom:0;width:var(--side);background:var(--bg2);border-right:1px solid var(--gb);padding:1.25rem 0;display:flex;flex-direction:column;z-index:100}
+.s-lbl{font-size:.62rem;letter-spacing:.15em;text-transform:uppercase;color:var(--fa);padding:0 1.5rem;margin:1rem 0 .4rem}
+.s-item{display:flex;align-items:center;gap:.75rem;padding:.6rem .75rem;border-radius:.75rem;cursor:pointer;transition:all .2s;font-size:.82rem;color:var(--mu);margin:0 .75rem 2px;border:1px solid transparent;text-decoration:none}
+.s-item:hover{background:var(--g);color:var(--tx)}
+.s-item.active{background:var(--embg);border-color:rgba(29,181,132,.2);color:var(--em)}
+.s-item svg{flex-shrink:0;opacity:.7}
+.s-bottom{margin-top:auto;padding:.75rem}
+.sub-pill{background:var(--gbg);border:1px solid rgba(201,169,110,.2);border-radius:.75rem;padding:.85rem 1rem}
+.sp-dot{width:5px;height:5px;border-radius:50%;background:var(--em);animation:blink 2s ease-in-out infinite;display:inline-block;margin-right:.3rem}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.sp-plan{font-size:.82rem;font-weight:600}
+.sp-sub{font-size:.7rem;color:var(--mu);margin-top:.15rem}
+
+/* MAIN */
+.main{margin-left:var(--side);margin-top:var(--nav);padding:2rem 2rem 5rem}
+.card{background:var(--g);border:1px solid var(--gb);border-radius:1.5rem;padding:1.5rem;position:relative;overflow:hidden}
+.card::after{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.06),transparent)}
+
+/* PAGE HEADER */
+.p-hdr{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:2rem;gap:1rem;flex-wrap:wrap}
+.eyebrow{font-size:.72rem;letter-spacing:.15em;text-transform:uppercase;color:var(--em);margin-bottom:.35rem}
+.ptitle{font-family:var(--fd);font-size:2rem;line-height:1.1}
+.ptitle em{color:var(--gold);font-style:italic}
+.psub{font-size:.85rem;color:var(--mu);margin-top:.3rem}
+.btn-p{padding:.65rem 1.3rem;border-radius:2rem;border:none;background:var(--gold);color:#05080F;font-family:var(--fb);font-size:.8rem;font-weight:700;cursor:pointer;transition:all .25s;display:flex;align-items:center;gap:.4rem}
+.btn-p:hover{background:var(--gl);transform:translateY(-2px);box-shadow:0 10px 28px rgba(201,169,110,.25)}
+.btn-g{padding:.65rem 1.1rem;border-radius:2rem;border:1px solid var(--gb2);background:transparent;color:var(--mu);font-family:var(--fb);font-size:.8rem;cursor:pointer;transition:all .25s}
+.btn-g:hover{border-color:var(--gb3);color:var(--tx)}
+
+/* ── IMPACT BANNER ── */
+.impact-banner{background:linear-gradient(135deg,rgba(29,181,132,.08),rgba(29,181,132,.03));border:1px solid rgba(29,181,132,.15);border-radius:1.5rem;padding:1.75rem 2rem;display:grid;grid-template-columns:repeat(4,1fr);gap:1.5rem;margin-bottom:1.75rem;position:relative;overflow:hidden}
+.impact-banner::before{content:'';position:absolute;top:-60px;right:-60px;width:200px;height:200px;background:radial-gradient(ellipse,rgba(29,181,132,.08),transparent 70%)}
+.ib-item{text-align:center}
+.ib-num{font-family:var(--fd);font-size:2rem;line-height:1;margin-bottom:.2rem}
+.ib-num.green{color:var(--em)}
+.ib-num.gold{color:var(--gold)}
+.ib-num.blue{color:var(--blue)}
+.ib-label{font-size:.72rem;letter-spacing:.07em;text-transform:uppercase;color:var(--mu)}
+
+/* ── CONTROLS ── */
+.controls-bar{display:flex;gap:.75rem;align-items:center;margin-bottom:1.5rem;flex-wrap:wrap}
+.search-wrap{flex:1;min-width:220px;position:relative}
+.search-wrap input{width:100%;padding:.62rem 1rem .62rem 2.4rem;background:var(--g);border:1px solid var(--gb);border-radius:2rem;color:var(--tx);font-family:var(--fb);font-size:.83rem;outline:none;transition:border-color .25s}
+.search-wrap input:focus{border-color:var(--em)}
+.search-wrap input::placeholder{color:var(--fa)}
+.search-wrap svg{position:absolute;left:.85rem;top:50%;transform:translateY(-50%);color:var(--mu)}
+.filter-chips{display:flex;gap:.4rem;flex-wrap:wrap}
+.chip{padding:.38rem .9rem;border-radius:2rem;border:1px solid var(--gb);background:transparent;color:var(--mu);font-family:var(--fb);font-size:.74rem;cursor:pointer;transition:all .25s}
+.chip.active,.chip:hover{border-color:var(--em);color:var(--em);background:var(--embg)}
+.view-toggle{display:flex;background:var(--fa2);border:1px solid var(--gb);border-radius:2rem;padding:2px}
+.vt-btn{width:32px;height:28px;border:none;background:transparent;color:var(--mu);cursor:pointer;border-radius:2rem;transition:all .2s;display:flex;align-items:center;justify-content:center}
+.vt-btn.active{background:var(--gb2);color:var(--tx)}
+
+/* ── CHARITY GRID ── */
+.charity-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1rem}
+.charity-grid.list-view{grid-template-columns:1fr}
+
+/* ── CHARITY CARD ── */
+.charity-card{background:var(--bg3);border:1.5px solid var(--gb);border-radius:1.25rem;padding:1.25rem;cursor:pointer;transition:all .35s;position:relative;overflow:hidden}
+.charity-card::before{content:'';position:absolute;inset:0;opacity:0;transition:opacity .35s}
+.charity-card:hover{border-color:var(--gb2);transform:translateY(-3px);box-shadow:0 12px 32px rgba(0,0,0,.3)}
+.charity-card:hover::before{opacity:1}
+.charity-card.selected{border-color:var(--em);background:var(--embg)}
+.charity-card.selected::before{background:radial-gradient(ellipse at 0% 0%,rgba(29,181,132,.07),transparent 70%);opacity:1}
+.charity-card.cat-health::before{background:radial-gradient(ellipse at 0% 0%,rgba(226,75,74,.04),transparent 70%)}
+.charity-card.cat-environment::before{background:radial-gradient(ellipse at 0% 0%,rgba(29,181,132,.05),transparent 70%)}
+.charity-card.cat-children::before{background:radial-gradient(ellipse at 0% 0%,rgba(201,169,110,.05),transparent 70%)}
+.charity-card.cat-animals::before{background:radial-gradient(ellipse at 0% 0%,rgba(45,139,222,.04),transparent 70%)}
+.charity-card.cat-education::before{background:radial-gradient(ellipse at 0% 0%,rgba(139,92,246,.04),transparent 70%)}
+.cc-top{display:flex;align-items:flex-start;gap:.85rem;margin-bottom:1rem}
+.cc-icon{width:48px;height:48px;border-radius:1rem;display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex-shrink:0;transition:transform .3s}
+.charity-card:hover .cc-icon{transform:scale(1.1) rotate(-3deg)}
+.cc-info{flex:1;min-width:0}
+.cc-name{font-size:.9rem;font-weight:600;margin-bottom:.2rem;line-height:1.3}
+.cc-cat{font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--mu)}
+.cc-tick{width:22px;height:22px;border-radius:50%;background:var(--em);display:flex;align-items:center;justify-content:center;opacity:0;transform:scale(0);transition:all .35s cubic-bezier(.34,1.56,.64,1);flex-shrink:0;font-size:.65rem;color:#05080F;font-weight:800}
+.charity-card.selected .cc-tick{opacity:1;transform:scale(1)}
+.cc-desc{font-size:.77rem;color:var(--mu);line-height:1.55;margin-bottom:1rem}
+.cc-stats{display:flex;gap:1rem}
+.cc-stat{display:flex;flex-direction:column;gap:.1rem}
+.cc-stat-num{font-size:.85rem;font-weight:600;color:var(--tx)}
+.cc-stat-label{font-size:.64rem;color:var(--fa);letter-spacing:.06em;text-transform:uppercase}
+.cc-footer{display:flex;align-items:center;justify-content:space-between;margin-top:1rem;padding-top:.75rem;border-top:1px solid var(--gb)}
+.cc-rating{display:flex;align-items:center;gap:.3rem;font-size:.74rem;color:var(--mu)}
+.cc-stars{color:var(--gold);letter-spacing:.05em;font-size:.7rem}
+.cc-tag{font-size:.65rem;padding:2px 7px;border-radius:.3rem;font-weight:600}
+.cc-tag.verified{background:var(--embg2);color:var(--em)}
+.cc-tag.featured{background:var(--gbg2);color:var(--gold)}
+/* list view variant */
+.charity-grid.list-view .charity-card{display:grid;grid-template-columns:auto 1fr auto;gap:1rem;align-items:center;padding:.9rem 1.1rem}
+.charity-grid.list-view .cc-top{margin-bottom:0;flex:none}
+.charity-grid.list-view .cc-icon{width:40px;height:40px;font-size:1.2rem}
+.charity-grid.list-view .cc-desc{display:none}
+.charity-grid.list-view .cc-stats{display:none}
+.charity-grid.list-view .cc-footer{border:none;margin:0;padding:0;flex-direction:column;align-items:flex-end;gap:.3rem}
+.charity-grid.list-view .charity-card::before{display:none}
+
+/* ── MY CHARITY PANEL ── */
+.my-charity-panel{background:var(--bg2);border:1px solid var(--gb);border-radius:1.5rem;padding:1.5rem;margin-bottom:1.5rem}
+.mcp-title{font-family:var(--fd);font-size:1.2rem;margin-bottom:1.1rem}
+.selected-charities{display:flex;flex-direction:column;gap:.65rem;margin-bottom:1.25rem}
+.sc-row{display:flex;align-items:center;gap:.85rem;padding:.8rem 1rem;background:var(--embg);border:1px solid rgba(29,181,132,.2);border-radius:1rem;transition:all .3s}
+.sc-row.removing{animation:scOut .3s ease-in both}
+@keyframes scOut{to{opacity:0;transform:translateX(-20px)}}
+.sc-icon{font-size:1.2rem}
+.sc-info{flex:1}
+.sc-name{font-size:.85rem;font-weight:500}
+.sc-cat{font-size:.7rem;color:var(--mu)}
+.sc-pct-wrap{display:flex;align-items:center;gap:.5rem}
+.sc-pct{font-family:var(--fd);font-size:1.1rem;color:var(--em)}
+.sc-remove{width:24px;height:24px;border-radius:.4rem;border:1px solid rgba(29,181,132,.2);background:transparent;color:var(--em);cursor:pointer;font-size:.75rem;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.sc-remove:hover{background:var(--rdbg);border-color:var(--red);color:var(--red)}
+.no-charity-msg{text-align:center;padding:1.5rem;color:var(--fa);font-size:.82rem;border:2px dashed var(--gb);border-radius:1rem}
+
+/* contribution slider */
+.contrib-section{margin-top:.75rem}
+.contrib-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:.6rem}
+.contrib-label{font-size:.78rem;font-weight:500}
+.contrib-pct{font-family:var(--fd);font-size:1.5rem;color:var(--em)}
+input[type=range]{--webkit-appearance:none;width:100%;height:4px;border-radius:2px;background:var(--gb2);outline:none;cursor:pointer}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:var(--gold);cursor:pointer;border:3px solid var(--bg);box-shadow:0 0 10px rgba(201,169,110,.4);transition:transform .2s}
+input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2)}
+.slider-marks{display:flex;justify-content:space-between;font-size:.65rem;color:var(--fa);margin-top:.35rem}
+.contrib-breakdown{display:flex;flex-direction:column;gap:.4rem;margin-top:1rem;padding-top:.9rem;border-top:1px solid var(--gb)}
+.cb-row{display:flex;justify-content:space-between;font-size:.78rem}
+.cb-row span:first-child{color:var(--mu)}
+.cb-row span:last-child{font-weight:500}
+
+/* ── CONTRIBUTION HISTORY TABLE ── */
+.hist-table{width:100%;border-collapse:collapse;font-size:.8rem}
+.hist-table th{text-align:left;font-size:.63rem;letter-spacing:.12em;text-transform:uppercase;color:var(--mu);padding:.5rem .75rem;border-bottom:1px solid var(--gb);font-weight:500}
+.hist-table td{padding:.65rem .75rem;border-bottom:1px solid rgba(255,255,255,.025);color:var(--tx)}
+.hist-table tr:hover td{background:rgba(255,255,255,.02)}
+.hist-table tr:last-child td{border-bottom:none}
+.ht-icon{font-size:1rem}
+.ht-status{display:inline-flex;align-items:center;gap:.3rem;font-size:.68rem;padding:2px 7px;border-radius:.4rem;font-weight:600}
+.ht-status.paid{background:var(--embg2);color:var(--em)}
+.ht-status.pending{background:var(--gbg2);color:var(--gold)}
+.ht-amount{font-weight:600;color:var(--em)}
+
+/* ── DETAIL MODAL ── */
+.modal-ov{position:fixed;inset:0;background:rgba(5,8,15,.88);z-index:600;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;backdrop-filter:blur(10px);transition:opacity .3s}
+.modal-ov.open{opacity:1;pointer-events:all}
+.modal{background:var(--bg2);border:1px solid var(--gb2);border-radius:1.75rem;width:100%;max-width:520px;transform:translateY(20px) scale(.97);transition:all .4s cubic-bezier(.34,1.56,.64,1);overflow:hidden}
+.modal-ov.open .modal{transform:none}
+.modal-hero{padding:2rem 2rem 1.5rem;text-align:center;position:relative}
+.modal-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 0%,rgba(29,181,132,.07),transparent)}
+.modal-icon{font-size:3rem;margin-bottom:.75rem;display:block}
+.modal-name{font-family:var(--fd);font-size:1.6rem;margin-bottom:.3rem}
+.modal-cat{font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--mu)}
+.modal-body{padding:0 2rem 2rem}
+.modal-desc{font-size:.83rem;color:var(--mu);line-height:1.7;margin-bottom:1.25rem}
+.modal-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:.65rem;margin-bottom:1.25rem}
+.ms-item{background:var(--bg3);border:1px solid var(--gb);border-radius:.9rem;padding:.75rem;text-align:center}
+.ms-num{font-family:var(--fd);font-size:1.3rem;margin-bottom:.15rem}
+.ms-num.green{color:var(--em)}
+.ms-num.gold{color:var(--gold)}
+.ms-label{font-size:.65rem;color:var(--mu);text-transform:uppercase;letter-spacing:.07em}
+.modal-actions{display:flex;gap:.65rem}
+.modal-select-btn{flex:1;padding:.8rem;border-radius:2rem;border:none;background:var(--em);color:#05080F;font-family:var(--fb);font-size:.85rem;font-weight:700;cursor:pointer;transition:all .3s}
+.modal-select-btn:hover{background:#22d49d;transform:translateY(-1px)}
+.modal-select-btn.selected{background:var(--rdbg);color:var(--red);border:1px solid rgba(226,75,74,.3)}
+.modal-close-btn{padding:.8rem 1.2rem;border-radius:2rem;border:1px solid var(--gb2);background:transparent;color:var(--mu);font-family:var(--fb);font-size:.85rem;cursor:pointer;transition:all .25s}
+.modal-close-btn:hover{border-color:var(--gb3);color:var(--tx)}
+
+/* toast */
+.tw{position:fixed;bottom:2rem;right:2rem;z-index:999;display:flex;flex-direction:column;gap:.5rem;pointer-events:none}
+.toast{display:flex;align-items:center;gap:.7rem;background:var(--bg2);border:1px solid var(--gb2);border-radius:1rem;padding:.8rem 1rem;font-size:.8rem;min-width:230px;transform:translateX(120%);transition:transform .4s cubic-bezier(.34,1.56,.64,1);pointer-events:all}
+.toast.show{transform:none}
+.t-ic{width:22px;height:22px;border-radius:.4rem;display:flex;align-items:center;justify-content:center;font-size:.72rem;flex-shrink:0}
+.t-ic.green{background:var(--embg2);color:var(--em)}
+.t-ic.gold{background:var(--gbg2);color:var(--gold)}
+.t-ic.red{background:var(--rdbg);color:var(--red)}
+.t-x{background:none;border:none;color:var(--fa);cursor:pointer;font-size:.9rem;padding:.1rem .3rem}
+
+@media(max-width:900px){.main{margin-left:0}.sidebar{display:none}.topbar{padding:0 1rem}.charity-grid{grid-template-columns:1fr 1fr}.impact-banner{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){.charity-grid{grid-template-columns:1fr}.impact-banner{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a href="dashboard.html" class="t-logo">Draw<span>Vault</span></a>
+  <div class="t-bc"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg><span>Charity Centre</span></div>
+  <div class="t-right">
+    <div class="notif-btn"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg><div class="n-dot"></div></div>
+    <div class="t-avatar">JD</div>
+  </div>
+</div>
+
+<div class="sidebar">
+  <p class="s-lbl">Navigation</p>
+  <a href="dashboard.html" class="s-item"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard</a>
+  <a href="scores-draw.html" class="s-item"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20V10M18 20V4M6 20v-4"/></svg>Scores & Draw</a>
+  <a href="results-verify.html" class="s-item"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/></svg>Results & Verify</a>
+  <div class="s-item active"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>Charity Centre</div>
+  <p class="s-lbl">Account</p>
+  <a href="admin.html" class="s-item"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>Admin Panel</a>
+  <div class="s-bottom">
+    <div class="sub-pill"><div style="font-size:.65rem;font-weight:700;color:var(--em);margin-bottom:.3rem"><span class="sp-dot"></span>ACTIVE</div><div class="sp-plan">DrawVault Pro</div><div class="sp-sub">Renews May 21, 2025</div></div>
+  </div>
+</div>
+
+<div class="main">
+
+  <div class="p-hdr">
+    <div>
+      <p class="eyebrow">Feature 8 — Charity System</p>
+      <h1 class="ptitle">Give Back with <em>Purpose</em></h1>
+      <p class="psub">Choose up to 3 charities. Set your contribution split. Every subscription gives back.</p>
+    </div>
+    <div style="display:flex;gap:.75rem">
+      <button class="btn-g" onclick="toast('Charity report downloading…','gold','↓')">Export Report</button>
+      <button class="btn-p" onclick="document.getElementById('contrib-section').scrollIntoView({behavior:'smooth'})">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Manage Contributions
+      </button>
+    </div>
+  </div>
+
+  <!-- IMPACT BANNER -->
+  <div class="impact-banner" id="impact-banner">
+    <div class="ib-item"><div class="ib-num green" id="ib-donated">$0</div><div class="ib-label">You've donated</div></div>
+    <div class="ib-item"><div class="ib-num gold" id="ib-months">0</div><div class="ib-label">Months active</div></div>
+    <div class="ib-item"><div class="ib-num blue" id="ib-charities">340</div><div class="ib-label">Partner charities</div></div>
+    <div class="ib-item"><div class="ib-num green">20%</div><div class="ib-label">Your contribution rate</div></div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 300px;gap:1.5rem;align-items:start">
+
+    <!-- LEFT -->
+    <div style="display:flex;flex-direction:column;gap:1.5rem">
+
+      <!-- CONTROLS -->
+      <div class="controls-bar">
+        <div class="search-wrap">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+          <input type="text" id="charity-search" placeholder="Search charities…" oninput="renderCharities()"/>
+        </div>
+        <div class="filter-chips" id="filter-chips">
+          <button class="chip active" onclick="setFilter('all',this)">All</button>
+          <button class="chip" onclick="setFilter('health',this)">❤️ Health</button>
+          <button class="chip" onclick="setFilter('environment',this)">🌿 Environment</button>
+          <button class="chip" onclick="setFilter('children',this)">🧒 Children</button>
+          <button class="chip" onclick="setFilter('animals',this)">🐾 Animals</button>
+          <button class="chip" onclick="setFilter('education',this)">📚 Education</button>
+        </div>
+        <div class="view-toggle">
+          <button class="vt-btn active" id="vt-grid" onclick="setView('grid',this)" title="Grid view">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+          </button>
+          <button class="vt-btn" id="vt-list" onclick="setView('list',this)" title="List view">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- CHARITY GRID -->
+      <div class="charity-grid" id="charity-grid"></div>
+
+      <!-- CONTRIBUTION HISTORY -->
+      <div class="card" id="contrib-section">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem">
+          <div style="display:flex;align-items:center;gap:.6rem">
+            <div style="width:28px;height:28px;border-radius:.5rem;background:var(--embg2);color:var(--em);display:flex;align-items:center;justify-content:center"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg></div>
+            <div><div style="font-size:.88rem;font-weight:600">Contribution History</div><div style="font-size:.73rem;color:var(--mu)">All charity payments</div></div>
+          </div>
+          <span style="font-size:.73rem;color:var(--em);font-weight:600">$64.00 total</span>
+        </div>
+        <table class="hist-table">
+          <thead><tr><th>Charity</th><th>Month</th><th>Subscription %</th><th>Amount</th><th>Status</th></tr></thead>
+          <tbody id="contrib-history-tbody"></tbody>
+        </table>
+      </div>
+
+    </div>
+
+    <!-- RIGHT SIDEBAR -->
+    <div style="display:flex;flex-direction:column;gap:1.25rem;position:sticky;top:calc(var(--nav)+2rem)">
+
+      <!-- MY CHARITIES -->
+      <div class="my-charity-panel">
+        <div class="mcp-title">My Charities <span style="font-size:.8rem;font-weight:400;color:var(--mu)" id="selected-count">(2 / 3)</span></div>
+        <div class="selected-charities" id="selected-charities-list"></div>
+        <div id="contrib-slider-wrap">
+          <div class="contrib-section">
+            <div class="contrib-header">
+              <span class="contrib-label">Monthly contribution</span>
+              <span class="contrib-pct" id="pct-display">20%</span>
+            </div>
+            <input type="range" min="10" max="50" value="20" step="5" id="contrib-slider" oninput="updateContrib(this.value)"/>
+            <div class="slider-marks"><span>10%</span><span>20%</span><span>30%</span><span>40%</span><span>50%</span></div>
+            <div class="contrib-breakdown">
+              <div class="cb-row"><span>Plan cost</span><span>$24.00</span></div>
+              <div class="cb-row"><span>Your contribution</span><span id="cb-amount" style="color:var(--em)">$4.80</span></div>
+              <div class="cb-row"><span>To charity</span><span id="cb-charity" style="color:var(--em)">$4.80 / mo</span></div>
+              <div class="cb-row"><span>Annual impact</span><span id="cb-annual" style="color:var(--gold)">$57.60 / yr</span></div>
+            </div>
+          </div>
+        </div>
+        <button class="btn-p" style="width:100%;justify-content:center;margin-top:1rem" onclick="toast('Contribution settings saved','green','✓')">Save Changes</button>
+      </div>
+
+      <!-- IMPACT RINGS -->
+      <div class="card">
+        <div style="font-size:.88rem;font-weight:600;margin-bottom:1rem">Your Impact</div>
+        <svg width="100%" viewBox="0 0 200 120" style="display:block;margin-bottom:.75rem">
+          <defs>
+            <linearGradient id="rg1" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#0F6A50"/><stop offset="100%" stop-color="#1DB584"/></linearGradient>
+            <linearGradient id="rg2" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#9A7A4A"/><stop offset="100%" stop-color="#C9A96E"/></linearGradient>
+          </defs>
+          <!-- ring 1 -->
+          <circle cx="60" cy="60" r="44" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="7"/>
+          <circle cx="60" cy="60" r="44" fill="none" stroke="url(#rg1)" stroke-width="7" stroke-linecap="round" stroke-dasharray="276.5" id="ring1" stroke-dashoffset="276.5" transform="rotate(-90 60 60)"/>
+          <text x="60" y="56" text-anchor="middle" font-family="DM Serif Display,serif" font-size="14" fill="#1DB584" id="ring1-pct">0%</text>
+          <text x="60" y="69" text-anchor="middle" font-family="Outfit,sans-serif" font-size="7" fill="#8A8784">of annual goal</text>
+          <!-- ring 2 -->
+          <circle cx="150" cy="60" r="34" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="6"/>
+          <circle cx="150" cy="60" r="34" fill="none" stroke="url(#rg2)" stroke-width="6" stroke-linecap="round" stroke-dasharray="213.6" id="ring2" stroke-dashoffset="213.6" transform="rotate(-90 150 60)"/>
+          <text x="150" y="56" text-anchor="middle" font-family="DM Serif Display,serif" font-size="13" fill="#C9A96E" id="ring2-pct">0</text>
+          <text x="150" y="68" text-anchor="middle" font-family="Outfit,sans-serif" font-size="7" fill="#8A8784">months given</text>
+        </svg>
+        <div style="display:flex;flex-direction:column;gap:.4rem;font-size:.75rem">
+          <div style="display:flex;justify-content:space-between"><span style="color:var(--mu)">Donated this year</span><span style="color:var(--em)">$57.60</span></div>
+          <div style="display:flex;justify-content:space-between"><span style="color:var(--mu)">Annual goal</span><span>$80.00</span></div>
+          <div style="display:flex;justify-content:space-between"><span style="color:var(--mu)">Next payment</span><span style="color:var(--gold)">May 21</span></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- CHARITY DETAIL MODAL -->
+<div class="modal-ov" id="modal-ov" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-hero">
+      <span class="modal-icon" id="m-icon">❤️</span>
+      <div class="modal-name" id="m-name">Charity Name</div>
+      <div class="modal-cat" id="m-cat">Category</div>
+    </div>
+    <div class="modal-body">
+      <p class="modal-desc" id="m-desc"></p>
+      <div class="modal-stats">
+        <div class="ms-item"><div class="ms-num green" id="m-raised">$0</div><div class="ms-label">Raised</div></div>
+        <div class="ms-item"><div class="ms-num gold" id="m-donors">0</div><div class="ms-label">Donors</div></div>
+        <div class="ms-item"><div class="ms-num green" id="m-rating">0</div><div class="ms-label">Rating</div></div>
+      </div>
+      <div class="modal-actions">
+        <button class="modal-select-btn" id="modal-select-btn" onclick="toggleFromModal()">Select This Charity</button>
+        <button class="modal-close-btn" onclick="closeModal()">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="tw" id="toast-wrap"></div>
+
+<script>
+const CHARITIES = [
+  {id:1,name:'Heart Foundation',cat:'health',icon:'❤️',desc:'Funding groundbreaking heart research and community education programs across 22 countries.',raised:'$4.2M',donors:'18.4K',rating:'4.9',tag:'verified'},
+  {id:2,name:'Ocean Conservancy',cat:'environment',icon:'🌊',desc:'Protecting ocean ecosystems through science-based advocacy, research, and coastal cleanup initiatives.',raised:'$2.8M',donors:'12.1K',rating:'4.8',tag:'featured'},
+  {id:3,name:'Save the Children',cat:'children',icon:'🧒',desc:'Ensuring every child has access to education, healthcare, and protection from exploitation worldwide.',raised:'$9.1M',donors:'44.2K',rating:'4.9',tag:'verified'},
+  {id:4,name:'WWF Wildlife Fund',cat:'animals',icon:'🐼',desc:"Conserving biodiversity and reducing humanity's footprint on the natural world since 1961.",raised:'$6.5M',donors:'31.7K',rating:'4.8',tag:'featured'},
+  {id:5,name:'Global Education Fund',cat:'education',icon:'📚',desc:'Bridging the education gap by funding schools, teachers, and digital learning in underserved regions.',raised:'$1.9M',donors:'8.6K',rating:'4.7',tag:'verified'},
+  {id:6,name:'Cancer Research UK',cat:'health',icon:'🎗️',desc:'Pioneering cancer research to save millions of lives through early detection and targeted treatment.',raised:'$12.3M',donors:'67.5K',rating:'5.0',tag:'verified'},
+  {id:7,name:'Rainforest Alliance',cat:'environment',icon:'🌿',desc:'Transforming land-use practices, business operations and consumer behaviour through sustainable farming.',raised:'$3.4M',donors:'14.9K',rating:'4.7',tag:'verified'},
+  {id:8,name:'UNICEF',cat:'children',icon:'🌍',desc:'Working in 190+ countries to protect the rights of every child, especially those in conflict zones.',raised:'$22.1M',donors:'89.3K',rating:'5.0',tag:'featured'},
+  {id:9,name:'ASPCA',cat:'animals',icon:'🐾',desc:'Preventing cruelty to animals through rescue, rehabilitation, and adoption services across the US.',raised:'$5.7M',donors:'28.4K',rating:'4.8',tag:'verified'},
+  {id:10,name:'Alzheimer\'s Society',cat:'health',icon:'🧠',desc:'Supporting people with dementia and funding research to find treatments for Alzheimer\'s disease.',raised:'$3.1M',donors:'11.2K',rating:'4.8',tag:'verified'},
+  {id:11,name:'Khan Academy',cat:'education',icon:'🎓',desc:'Providing free world-class education to anyone, anywhere through interactive online learning tools.',raised:'$1.5M',donors:'6.8K',rating:'4.9',tag:'featured'},
+  {id:12,name:'Habitat for Humanity',cat:'education',icon:'🏠',desc:'Building homes and hope for families living in poverty in 70+ countries around the world.',raised:'$7.8M',donors:'33.6K',rating:'4.8',tag:'verified'},
+];
+
+const HISTORY = [
+  {icon:'❤️',name:'Heart Foundation',month:'April 2025',pct:'20%',amount:'$4.80',status:'paid'},
+  {icon:'🌊',name:'Ocean Conservancy',month:'April 2025',pct:'20%',amount:'$4.80',status:'pending'},
+  {icon:'❤️',name:'Heart Foundation',month:'March 2025',pct:'20%',amount:'$4.80',status:'paid'},
+  {icon:'🌊',name:'Ocean Conservancy',month:'March 2025',pct:'20%',amount:'$4.80',status:'paid'},
+  {icon:'❤️',name:'Heart Foundation',month:'February 2025',pct:'20%',amount:'$4.80',status:'paid'},
+  {icon:'🌊',name:'Ocean Conservancy',month:'February 2025',pct:'20%',amount:'$4.80',status:'paid'},
+  {icon:'❤️',name:'Heart Foundation',month:'January 2025',pct:'20%',amount:'$4.80',status:'paid'},
+  {icon:'🌊',name:'Ocean Conservancy',month:'January 2025',pct:'20%',amount:'$4.80',status:'paid'},
+];
+
+let selectedIds = [1,2];
+let activeFilter = 'all';
+let viewMode = 'grid';
+let activeModalId = null;
+
+function setFilter(f, btn){
+  activeFilter = f;
+  document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
+  btn.classList.add('active');
+  renderCharities();
+}
+function setView(v, btn){
+  viewMode = v;
+  document.querySelectorAll('.vt-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('charity-grid').className = 'charity-grid' + (v==='list'?' list-view':'');
+}
+
+function renderCharities(){
+  const q = document.getElementById('charity-search').value.toLowerCase();
+  const grid = document.getElementById('charity-grid');
+  const filtered = CHARITIES.filter(c=>{
+    const mf = activeFilter==='all'||c.cat===activeFilter;
+    const mq = !q||c.name.toLowerCase().includes(q)||c.cat.includes(q);
+    return mf&&mq;
+  });
+  grid.innerHTML = filtered.map(c=>`
+    <div class="charity-card cat-${c.cat} ${selectedIds.includes(c.id)?'selected':''}" onclick="openModal(${c.id})">
+      <div class="cc-top">
+        <div class="cc-icon">${c.icon}</div>
+        <div class="cc-info">
+          <div class="cc-name">${c.name}</div>
+          <div class="cc-cat">${c.cat}</div>
+        </div>
+        <div class="cc-tick">✓</div>
+      </div>
+      <div class="cc-desc">${c.desc}</div>
+      <div class="cc-stats">
+        <div class="cc-stat"><div class="cc-stat-num" style="color:var(--em)">${c.raised}</div><div class="cc-stat-label">Raised</div></div>
+        <div class="cc-stat"><div class="cc-stat-num">${c.donors}</div><div class="cc-stat-label">Donors</div></div>
+        <div class="cc-stat"><div class="cc-stat-num" style="color:var(--gold)">${c.rating}★</div><div class="cc-stat-label">Rating</div></div>
+      </div>
+      <div class="cc-footer">
+        <div class="cc-rating"><span class="cc-stars">★★★★★</span> ${c.rating}</div>
+        <span class="cc-tag ${c.tag}">${c.tag==='verified'?'✓ Verified':'⭐ Featured'}</span>
+      </div>
+    </div>`).join('');
+  gsap.from('.charity-card',{opacity:0,y:16,stagger:.04,duration:.4,ease:'power2.out'});
+}
+
+function openModal(id){
+  const c = CHARITIES.find(x=>x.id===id);
+  activeModalId = id;
+  document.getElementById('m-icon').textContent = c.icon;
+  document.getElementById('m-name').textContent = c.name;
+  document.getElementById('m-cat').textContent = c.cat.charAt(0).toUpperCase()+c.cat.slice(1);
+  document.getElementById('m-desc').textContent = c.desc;
+  document.getElementById('m-raised').textContent = c.raised;
+  document.getElementById('m-donors').textContent = c.donors;
+  document.getElementById('m-rating').textContent = c.rating+'★';
+  const btn = document.getElementById('modal-select-btn');
+  if(selectedIds.includes(id)){btn.textContent='Remove Charity';btn.classList.add('selected');}
+  else{btn.textContent='Select This Charity';btn.classList.remove('selected');}
+  document.getElementById('modal-ov').classList.add('open');
+}
+function closeModal(){document.getElementById('modal-ov').classList.remove('open');}
+function toggleFromModal(){
+  if(!activeModalId) return;
+  toggleCharity(activeModalId);
+  closeModal();
+}
+
+function toggleCharity(id){
+  if(selectedIds.includes(id)){
+    selectedIds = selectedIds.filter(x=>x!==id);
+    toast('Charity removed','red','✕');
+  } else {
+    if(selectedIds.length>=3){toast('Max 3 charities. Remove one first.','gold','⚠');return;}
+    selectedIds.push(id);
+    toast('Charity added to your list','green','✓');
+  }
+  renderCharities();
+  renderSelectedCharities();
+}
+
+function renderSelectedCharities(){
+  const list = document.getElementById('selected-charities-list');
+  document.getElementById('selected-count').textContent = `(${selectedIds.length} / 3)`;
+  if(!selectedIds.length){
+    list.innerHTML='<div class="no-charity-msg">No charities selected yet — pick from the list</div>';
+    return;
+  }
+  list.innerHTML = selectedIds.map(id=>{
+    const c=CHARITIES.find(x=>x.id===id);
+    return `<div class="sc-row" id="scr-${id}">
+      <span class="sc-icon">${c.icon}</span>
+      <div class="sc-info"><div class="sc-name">${c.name}</div><div class="sc-cat">${c.cat}</div></div>
+      <button class="sc-remove" onclick="removeCharity(${id})">✕</button>
+    </div>`;
+  }).join('');
+}
+
+function removeCharity(id){
+  const el = document.getElementById('scr-'+id);
+  if(el){el.classList.add('removing');setTimeout(()=>{selectedIds=selectedIds.filter(x=>x!==id);renderCharities();renderSelectedCharities();},300);}
+  toast('Charity removed','red','✕');
+}
+
+function updateContrib(val){
+  document.getElementById('pct-display').textContent = val+'%';
+  const monthly = (24*(val/100)).toFixed(2);
+  const annual = (24*12*(val/100)).toFixed(2);
+  document.getElementById('cb-amount').textContent = '$'+monthly;
+  document.getElementById('cb-charity').textContent = '$'+monthly+' / mo';
+  document.getElementById('cb-annual').textContent = '$'+annual+' / yr';
+}
+
+function renderHistory(){
+  document.getElementById('contrib-history-tbody').innerHTML = HISTORY.map(h=>`
+    <tr>
+      <td><span style="margin-right:.4rem">${h.icon}</span>${h.name}</td>
+      <td style="color:var(--mu)">${h.month}</td>
+      <td style="color:var(--mu)">${h.pct}</td>
+      <td class="ht-amount">${h.amount}</td>
+      <td><span class="ht-status ${h.status}">${h.status==='paid'?'✓ Paid':'⏳ Pending'}</span></td>
+    </tr>`).join('');
+}
+
+function toast(msg,color,icon){
+  const c=document.getElementById('toast-wrap');
+  const t=document.createElement('div');
+  t.className='toast';
+  t.innerHTML=`<div class="t-ic ${color}">${icon}</div><span style="flex:1;color:var(--tx)">${msg}</span><button class="t-x" onclick="this.parentElement.remove()">✕</button>`;
+  c.appendChild(t);
+  requestAnimationFrame(()=>requestAnimationFrame(()=>t.classList.add('show')));
+  setTimeout(()=>{t.classList.remove('show');setTimeout(()=>t.remove(),500)},4000);
+}
+
+// animated counters
+gsap.to({v:0},{v:64,duration:2,delay:.5,ease:'power2.out',onUpdate:function(){document.getElementById('ib-donated').textContent='$'+Math.round(this.targets()[0].v);}});
+gsap.to({v:0},{v:5,duration:1.5,delay:.6,ease:'power2.out',onUpdate:function(){document.getElementById('ib-months').textContent=Math.round(this.targets()[0].v);}});
+// rings
+setTimeout(()=>{
+  const r=339.3*0.27; gsap.to('#ring1',{attr:{'stroke-dashoffset':276.5-276.5*.73},duration:1.8,ease:'power3.out'});
+  gsap.to({v:0},{v:73,duration:1.8,ease:'power2.out',onUpdate:function(){document.getElementById('ring1-pct').textContent=Math.round(this.targets()[0].v)+'%';}});
+  gsap.to('#ring2',{attr:{'stroke-dashoffset':213.6-213.6*.67},duration:1.6,delay:.2,ease:'power3.out'});
+  gsap.to({v:0},{v:8,duration:1.6,delay:.2,ease:'power2.out',onUpdate:function(){document.getElementById('ring2-pct').textContent=Math.round(this.targets()[0].v);}});
+},400);
+gsap.from('.s-item',{opacity:0,x:-12,stagger:.05,duration:.4,ease:'power2.out',delay:.1});
+gsap.from('.p-hdr,.impact-banner',{opacity:0,y:20,stagger:.1,duration:.6,ease:'power3.out',delay:.15});
+
+renderCharities();
+renderSelectedCharities();
+renderHistory();
+</script>
+</body>
+</html>

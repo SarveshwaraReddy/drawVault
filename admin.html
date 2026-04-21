@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>DrawVault — Admin Panel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --gold:#C9A96E;--gl:#E8C98A;--gd:#9A7A4A;--gbg:rgba(201,169,110,.07);--gbg2:rgba(201,169,110,.14);
+  --em:#1DB584;--emd:#0F6A50;--embg:rgba(29,181,132,.07);--embg2:rgba(29,181,132,.14);
+  --red:#E24B4A;--rdbg:rgba(226,75,74,.07);--rdbg2:rgba(226,75,74,.15);
+  --blue:#2D8BDE;--blbg:rgba(45,139,222,.07);--blbg2:rgba(45,139,222,.14);
+  --purple:#8B5CF6;--purbg:rgba(139,92,246,.1);
+  --bg:#05080F;--bg2:#080D18;--bg3:#0C1220;--bg4:#0F1628;
+  --g:rgba(255,255,255,.04);--gb:rgba(255,255,255,.07);--gb2:rgba(255,255,255,.12);--gb3:rgba(255,255,255,.2);
+  --tx:#EEE9DE;--mu:#8A8784;--fa:#3D3C3A;--fa2:#1C1E24;
+  --fd:'DM Serif Display',serif;--fb:'Outfit',sans-serif;
+  --nav:64px;--side:220px;
+}
+html,body{min-height:100%;background:var(--bg);color:var(--tx);font-family:var(--fb);overflow-x:hidden}
+::-webkit-scrollbar{width:3px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--fa);border-radius:2px}
+
+/* ── TOPBAR ── */
+.topbar{position:fixed;top:0;left:0;right:0;height:var(--nav);z-index:200;background:rgba(5,8,15,.95);backdrop-filter:blur(24px);border-bottom:1px solid rgba(226,75,74,.15);display:flex;align-items:center;padding:0 1.5rem;gap:1.25rem}
+.t-logo{font-family:var(--fd);font-size:1.3rem;color:var(--gold);text-decoration:none}
+.t-logo span{color:var(--tx);font-style:italic}
+.admin-badge{background:var(--rdbg2);border:1px solid rgba(226,75,74,.3);color:var(--red);font-size:.65rem;font-weight:700;letter-spacing:.1em;padding:3px 9px;border-radius:.4rem}
+.t-right{margin-left:auto;display:flex;align-items:center;gap:.9rem}
+.t-user{display:flex;align-items:center;gap:.5rem;font-size:.8rem;color:var(--mu)}
+.t-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--red),#F97316);display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;color:#fff}
+.live-pill{display:flex;align-items:center;gap:.35rem;font-size:.72rem;color:var(--em);background:var(--embg);border:1px solid rgba(29,181,132,.2);padding:.25rem .75rem;border-radius:2rem}
+.live-dot{width:5px;height:5px;border-radius:50%;background:var(--em);animation:blink 2s ease-in-out infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* ── ADMIN SIDEBAR ── */
+.sidebar{position:fixed;top:var(--nav);left:0;bottom:0;width:var(--side);background:var(--bg2);border-right:1px solid var(--gb);padding:1rem 0;display:flex;flex-direction:column;z-index:100;overflow-y:auto}
+.s-lbl{font-size:.6rem;letter-spacing:.15em;text-transform:uppercase;color:var(--fa);padding:0 1.25rem;margin:.9rem 0 .35rem}
+.s-item{display:flex;align-items:center;gap:.7rem;padding:.58rem .7rem;border-radius:.7rem;cursor:pointer;transition:all .2s;font-size:.8rem;color:var(--mu);margin:0 .6rem 1px;border:1px solid transparent}
+.s-item:hover{background:var(--g);color:var(--tx)}
+.s-item.active{background:var(--rdbg);border-color:rgba(226,75,74,.2);color:var(--red)}
+.s-item svg{flex-shrink:0;opacity:1}
+.s-badge{margin-left:auto;background:var(--rdbg2);color:var(--red);font-size:.6rem;font-weight:700;padding:1px 6px;border-radius:.3rem}
+.s-badge.green{background:var(--embg2);color:var(--em)}
+.s-sep{height:1px;background:var(--gb);margin:.75rem .6rem}
+.back-link{display:flex;align-items:center;gap:.5rem;font-size:.75rem;color:var(--mu);padding:.5rem .7rem;margin:0 .6rem;text-decoration:none;transition:color .2s;border-radius:.5rem}
+.back-link:hover{color:var(--tx);background:var(--g)}
+
+/* ── MAIN ── */
+.main{margin-left:var(--side);margin-top:var(--nav);min-height:calc(100vh - var(--nav))}
+.section{display:none;padding:1.75rem 1.75rem 5rem;animation:fsIn .4s cubic-bezier(.4,0,.2,1) both}
+.section.active{display:block}
+@keyframes fsIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.p-hdr{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:1.75rem;gap:1rem;flex-wrap:wrap}
+.ptitle{font-family:var(--fd);font-size:1.7rem;line-height:1.1}
+.ptitle em{color:var(--red);font-style:italic}
+.psub{font-size:.82rem;color:var(--mu);margin-top:.25rem}
+.btn-r{padding:.6rem 1.2rem;border-radius:2rem;border:none;background:var(--red);color:#fff;font-family:var(--fb);font-size:.78rem;font-weight:700;cursor:pointer;transition:all .25s;display:flex;align-items:center;gap:.4rem}
+.btn-r:hover{background:#f05555;transform:translateY(-1px)}
+.btn-g{padding:.6rem 1.1rem;border-radius:2rem;border:1px solid var(--gb2);background:transparent;color:var(--mu);font-family:var(--fb);font-size:.78rem;cursor:pointer;transition:all .25s}
+.btn-g:hover{border-color:var(--gb3);color:var(--tx)}
+.btn-p{padding:.6rem 1.2rem;border-radius:2rem;border:none;background:var(--gold);color:#05080F;font-family:var(--fb);font-size:.78rem;font-weight:700;cursor:pointer;transition:all .25s;display:flex;align-items:center;gap:.4rem}
+.btn-p:hover{background:var(--gl);transform:translateY(-1px)}
+.btn-em{padding:.6rem 1.2rem;border-radius:2rem;border:none;background:var(--em);color:#05080F;font-family:var(--fb);font-size:.78rem;font-weight:700;cursor:pointer;transition:all .25s}
+.btn-em:hover{background:#22d49d;transform:translateY(-1px)}
+
+/* card */
+.card{background:var(--g);border:1px solid var(--gb);border-radius:1.4rem;padding:1.4rem;position:relative;overflow:hidden}
+.card::after{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.05),transparent)}
+.c-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.1rem}
+.c-trow{display:flex;align-items:center;gap:.55rem}
+.c-ic{width:26px;height:26px;border-radius:.45rem;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.c-ic.red{background:var(--rdbg);color:var(--red)}
+.c-ic.gold{background:var(--gbg2);color:var(--gold)}
+.c-ic.green{background:var(--embg2);color:var(--em)}
+.c-ic.blue{background:var(--blbg2);color:var(--blue)}
+.c-ttl{font-size:.84rem;font-weight:600}
+.c-sub{font-size:.7rem;color:var(--mu)}
+
+/* ─── ANALYTICS ─── */
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.9rem;margin-bottom:1.5rem}
+.kpi{background:var(--bg3);border:1px solid var(--gb);border-radius:1.1rem;padding:1.1rem;position:relative;overflow:hidden;transition:border-color .3s}
+.kpi:hover{border-color:var(--gb2)}
+.kpi-icon{width:30px;height:30px;border-radius:.55rem;display:flex;align-items:center;justify-content:center;margin-bottom:.75rem}
+.kpi-icon.red{background:var(--rdbg);color:var(--red)}
+.kpi-icon.gold{background:var(--gbg2);color:var(--gold)}
+.kpi-icon.green{background:var(--embg2);color:var(--em)}
+.kpi-icon.blue{background:var(--blbg2);color:var(--blue)}
+.kpi-num{font-family:var(--fd);font-size:1.8rem;line-height:1;margin-bottom:.2rem}
+.kpi-label{font-size:.7rem;color:var(--mu);letter-spacing:.04em}
+.kpi-delta{position:absolute;top:.85rem;right:.85rem;font-size:.65rem;font-weight:700;padding:2px 6px;border-radius:.3rem}
+.kpi-delta.up{background:var(--embg2);color:var(--em)}
+.kpi-delta.down{background:var(--rdbg2);color:var(--red)}
+
+.analytics-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem}
+.chart-bar-wrap{display:flex;flex-direction:column;gap:.5rem}
+.bar-row{display:flex;align-items:center;gap:.75rem;font-size:.75rem}
+.bar-label{min-width:60px;color:var(--mu);text-align:right}
+.bar-track{flex:1;height:6px;background:var(--gb);border-radius:3px;overflow:hidden}
+.bar-fill{height:100%;border-radius:3px;transition:width 1.2s cubic-bezier(.4,0,.2,1)}
+.bar-fill.red{background:linear-gradient(90deg,#A32D2D,var(--red))}
+.bar-fill.gold{background:linear-gradient(90deg,var(--gd),var(--gold))}
+.bar-fill.green{background:linear-gradient(90deg,var(--emd),var(--em))}
+.bar-fill.blue{background:linear-gradient(90deg,#1A5C9A,var(--blue))}
+.bar-val{min-width:36px;font-size:.72rem;font-weight:600;color:var(--tx)}
+
+/* ─── TABLE BASE ─── */
+.data-table{width:100%;border-collapse:collapse;font-size:.78rem}
+.data-table th{text-align:left;font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:var(--mu);padding:.5rem .75rem;border-bottom:1px solid var(--gb);font-weight:500;white-space:nowrap}
+.data-table td{padding:.62rem .75rem;border-bottom:1px solid rgba(255,255,255,.025);vertical-align:middle}
+.data-table tr:hover td{background:rgba(255,255,255,.02)}
+.data-table tr:last-child td{border-bottom:none}
+.tbl-wrap{overflow-x:auto}
+
+/* pills & badges */
+.pill{display:inline-flex;align-items:center;gap:.25rem;font-size:.65rem;font-weight:700;padding:2px 8px;border-radius:.4rem;letter-spacing:.04em;white-space:nowrap}
+.pill.active{background:var(--embg2);color:var(--em)}
+.pill.expired{background:var(--rdbg);color:var(--red)}
+.pill.cancelled{background:rgba(255,255,255,.06);color:var(--mu)}
+.pill.pending{background:var(--gbg2);color:var(--gold)}
+.pill.approved{background:var(--embg2);color:var(--em)}
+.pill.paid{background:var(--embg);color:var(--em)}
+.pill.review{background:var(--blbg2);color:var(--blue)}
+.pill.pro{background:var(--gbg2);color:var(--gold)}
+.pill.starter{background:var(--g);color:var(--mu);border:1px solid var(--gb)}
+.pill.published{background:var(--embg2);color:var(--em)}
+.pill.draft{background:var(--gbg);color:var(--gold)}
+.pill.random{background:var(--blbg);color:var(--blue)}
+.pill.algo{background:var(--purbg);color:var(--purple)}
+.tbl-actions{display:flex;gap:.35rem}
+.tbl-btn{padding:.28rem .65rem;border-radius:.4rem;border:1px solid var(--gb2);background:transparent;color:var(--mu);font-family:var(--fb);font-size:.68rem;cursor:pointer;transition:all .2s;white-space:nowrap}
+.tbl-btn:hover{border-color:var(--gb3);color:var(--tx)}
+.tbl-btn.danger:hover{border-color:var(--red);color:var(--red);background:var(--rdbg)}
+.tbl-btn.success:hover{border-color:var(--em);color:var(--em);background:var(--embg)}
+.tbl-btn.warn:hover{border-color:var(--gold);color:var(--gold);background:var(--gbg)}
+.avatar-chip{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--gd),var(--gold));display:inline-flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:700;color:#05080F;flex-shrink:0;margin-right:.4rem}
+
+/* search bar */
+.tbl-controls{display:flex;gap:.65rem;align-items:center;margin-bottom:1rem;flex-wrap:wrap}
+.tbl-search{position:relative;flex:1;min-width:180px}
+.tbl-search input{width:100%;padding:.52rem 1rem .52rem 2.2rem;background:var(--bg3);border:1px solid var(--gb);border-radius:2rem;color:var(--tx);font-family:var(--fb);font-size:.78rem;outline:none;transition:border-color .2s}
+.tbl-search input:focus{border-color:var(--gold)}
+.tbl-search input::placeholder{color:var(--fa)}
+.tbl-search svg{position:absolute;left:.75rem;top:50%;transform:translateY(-50%);color:var(--mu)}
+.tbl-filter-row{display:flex;gap:.4rem;flex-wrap:wrap}
+.tbl-chip{padding:.3rem .75rem;border-radius:2rem;border:1px solid var(--gb);background:transparent;color:var(--mu);font-family:var(--fb);font-size:.7rem;cursor:pointer;transition:all .2s}
+.tbl-chip.active,.tbl-chip:hover{border-color:var(--red);color:var(--red);background:var(--rdbg)}
+
+/* draw studio */
+.draw-studio{background:var(--bg2);border:1px solid var(--gb);border-radius:1.4rem;padding:2rem;margin-bottom:1rem;text-align:center;position:relative;overflow:hidden}
+.draw-studio::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 50% at 50% 0%,rgba(201,169,110,.05),transparent)}
+.ds-title{font-family:var(--fd);font-size:1.3rem;margin-bottom:.25rem}
+.ds-sub{font-size:.78rem;color:var(--mu);margin-bottom:1.5rem}
+.mode-toggle{display:inline-flex;background:var(--fa2);border:1px solid var(--gb);border-radius:2rem;padding:3px;margin-bottom:1.5rem;gap:2px}
+.mode-btn{padding:.38rem 1rem;border-radius:2rem;border:none;background:transparent;color:var(--mu);font-family:var(--fb);font-size:.74rem;font-weight:500;cursor:pointer;transition:all .3s}
+.mode-btn.active{background:var(--gb2);color:var(--tx)}
+.draw-balls-preview{display:flex;justify-content:center;gap:.5rem;margin:1rem 0 1.5rem;flex-wrap:wrap}
+.db-ball{width:48px;height:48px;border-radius:50%;border:1.5px solid var(--gb2);display:flex;align-items:center;justify-content:center;font-family:var(--fd);font-size:1.1rem;color:var(--mu);background:var(--bg3);transition:all .35s;position:relative;overflow:hidden}
+.db-ball.rolling{border-color:rgba(201,169,110,.4);animation:ballPulse .15s ease-in-out infinite alternate}
+.db-ball.set{border-color:var(--gold);color:var(--gold);background:var(--gbg2)}
+@keyframes ballPulse{from{border-color:rgba(201,169,110,.2)}to{border-color:rgba(201,169,110,.5)}}
+.draw-run-btn{padding:.85rem 2rem;border-radius:3rem;border:none;background:var(--gold);color:#05080F;font-family:var(--fb);font-size:.88rem;font-weight:700;cursor:pointer;transition:all .3s;display:inline-flex;align-items:center;gap:.55rem;margin-right:.5rem}
+.draw-run-btn:hover{background:var(--gl);transform:translateY(-2px);box-shadow:0 12px 32px rgba(201,169,110,.3)}
+.draw-run-btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.pub-btn{padding:.85rem 1.5rem;border-radius:3rem;border:none;background:var(--em);color:#05080F;font-family:var(--fb);font-size:.88rem;font-weight:700;cursor:pointer;transition:all .3s;display:none;align-items:center;gap:.5rem}
+.pub-btn:hover{background:#22d49d;transform:translateY(-1px)}
+.pub-btn.show{display:inline-flex}
+.draw-result-strip{display:none;margin-top:1rem;padding:1rem;background:var(--gbg);border:1px solid rgba(201,169,110,.2);border-radius:.9rem;font-size:.82rem}
+.draw-result-strip.show{display:block}
+
+/* charity admin */
+.charity-admin-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:.9rem}
+.ca-card{background:var(--bg3);border:1.5px solid var(--gb);border-radius:1.1rem;padding:1.1rem;position:relative;transition:all .25s}
+.ca-card:hover{border-color:var(--gb2)}
+.ca-top{display:flex;align-items:center;gap:.7rem;margin-bottom:.75rem}
+.ca-icon{font-size:1.4rem}
+.ca-name{font-size:.85rem;font-weight:600;line-height:1.3}
+.ca-cat{font-size:.65rem;letter-spacing:.08em;text-transform:uppercase;color:var(--mu);margin-top:.1rem}
+.ca-stats{display:flex;gap:.9rem;margin-bottom:.75rem}
+.ca-stat-num{font-size:.82rem;font-weight:600;color:var(--em)}
+.ca-stat-lbl{font-size:.62rem;color:var(--fa);text-transform:uppercase;letter-spacing:.06em}
+.ca-actions{display:flex;gap:.4rem;border-top:1px solid var(--gb);padding-top:.75rem}
+.ca-btn{flex:1;padding:.35rem;border-radius:.5rem;border:1px solid var(--gb);background:transparent;color:var(--mu);font-family:var(--fb);font-size:.7rem;cursor:pointer;transition:all .2s;text-align:center}
+.ca-btn:hover{border-color:var(--gb2);color:var(--tx)}
+.ca-btn.danger:hover{border-color:var(--red);color:var(--red);background:var(--rdbg)}
+.add-charity-card{background:transparent;border:2px dashed var(--gb);border-radius:1.1rem;padding:1.1rem;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.5rem;cursor:pointer;transition:all .25s;min-height:160px}
+.add-charity-card:hover{border-color:var(--em);background:var(--embg)}
+
+/* winners panel */
+.winner-card{background:var(--bg3);border:1.5px solid var(--gb);border-radius:1.1rem;padding:1.1rem;margin-bottom:.65rem;transition:all .25s}
+.winner-card:hover{border-color:var(--gb2)}
+.wc-top{display:flex;align-items:center;gap:.85rem;margin-bottom:.85rem}
+.wc-avatar{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--gd),var(--gold));display:flex;align-items:center;justify-content:center;font-size:.78rem;font-weight:700;color:#05080F;flex-shrink:0}
+.wc-info{flex:1}
+.wc-name{font-size:.88rem;font-weight:600;margin-bottom:.15rem}
+.wc-draw{font-size:.72rem;color:var(--mu)}
+.wc-prize{font-family:var(--fd);font-size:1.2rem;color:var(--gold);text-align:right}
+.wc-tier{font-size:.68rem;color:var(--mu);text-align:right;margin-top:.15rem}
+.wc-proof{display:flex;align-items:center;gap:.6rem;padding:.65rem .85rem;background:var(--bg4);border:1px solid var(--gb);border-radius:.75rem;margin-bottom:.75rem;font-size:.75rem}
+.wc-proof svg{color:var(--gold);flex-shrink:0}
+.wc-proof span{flex:1;color:var(--mu)}
+.wc-proof a{color:var(--gold);text-decoration:none;font-size:.72rem}
+.wc-actions{display:flex;gap:.5rem}
+
+/* timeline widget */
+.timeline{display:flex;flex-direction:column;gap:.1rem}
+.tl-item{display:flex;gap:.75rem;padding:.6rem .5rem;border-radius:.75rem;transition:background .2s;cursor:default}
+.tl-item:hover{background:var(--g)}
+.tl-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:.35rem}
+.tl-dot.red{background:var(--red)}
+.tl-dot.green{background:var(--em)}
+.tl-dot.gold{background:var(--gold)}
+.tl-dot.blue{background:var(--blue)}
+.tl-text{flex:1;font-size:.76rem;color:var(--mu)}
+.tl-text strong{color:var(--tx);font-weight:500}
+.tl-time{font-size:.65rem;color:var(--fa);white-space:nowrap}
+
+/* toast */
+.tw{position:fixed;bottom:2rem;right:2rem;z-index:999;display:flex;flex-direction:column;gap:.5rem;pointer-events:none}
+.toast{display:flex;align-items:center;gap:.7rem;background:var(--bg2);border:1px solid var(--gb2);border-radius:1rem;padding:.75rem .95rem;font-size:.78rem;min-width:220px;transform:translateX(120%);transition:transform .4s cubic-bezier(.34,1.56,.64,1);pointer-events:all}
+.toast.show{transform:none}
+.t-ic{width:20px;height:20px;border-radius:.35rem;display:flex;align-items:center;justify-content:center;font-size:.68rem;flex-shrink:0}
+.t-ic.green{background:var(--embg2);color:var(--em)}
+.t-ic.gold{background:var(--gbg2);color:var(--gold)}
+.t-ic.red{background:var(--rdbg2);color:var(--red)}
+.t-ic.blue{background:var(--blbg2);color:var(--blue)}
+.t-x{background:none;border:none;color:var(--fa);cursor:pointer;font-size:.85rem;padding:.1rem .25rem}
+
+@media(max-width:1200px){.kpi-grid{grid-template-columns:1fr 1fr}.analytics-grid{grid-template-columns:1fr}}
+@media(max-width:768px){.sidebar{display:none}.main{margin-left:0}.topbar{padding:0 1rem}}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a href="dashboard.html" class="t-logo">Draw<span>Vault</span></a>
+  <span class="admin-badge">ADMIN</span>
+  <div class="live-pill"><span class="live-dot"></span>Live System</div>
+  <div class="t-right">
+    <div class="t-user"><div class="t-avatar">SA</div>Super Admin</div>
+  </div>
+</div>
+
+<div class="sidebar">
+  <p class="s-lbl">Admin Sections</p>
+  <div class="s-item active" onclick="switchSec('analytics',this)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Analytics</div>
+  <div class="s-item" style=" opacity: 1" onclick="switchSec('users',this)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>User Management<span class="s-badge" >12.4K</span></div>
+  <div class="s-item"style=" opacity: 1" onclick="switchSec('draws',this)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>Draw Management</div>
+  <div class="s-item" style=" opacity: 1"onclick="switchSec('charities',this)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>Charities</div>
+  <div class="s-item"style=" opacity: 1" onclick="switchSec('winners',this)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/></svg>Winners<span class="s-badge">3</span></div>
+  <div class="s-sep"></div>
+  <p class="s-lbl">App Pages</p>
+  <a href="scores-draw.html" class="s-item" style="text-decoration:none ; opacity: 1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20V10M18 20V4M6 20v-4"/></svg>Scores & Draw</a>
+  <a href="results-verify.html" class="s-item" style="text-decoration:none ; opacity: 1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/></svg>Results & Verify</a>
+  <a href="charity.html" class="s-item" style="text-decoration:none; opacity: 1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>Charity Centre</a>
+  <div class="s-sep"></div>
+  <a href="dashboard.html" class="back-link"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>Back to App</a>
+</div>
+
+<div class="main">
+
+<!-- ══ ANALYTICS ══ -->
+<div class="section active" id="sec-analytics">
+  <div class="p-hdr">
+    <div><h1 class="ptitle">System <em>Analytics</em></h1><p class="psub">Platform overview — live stats as of April 21, 2025</p></div>
+    <div style="display:flex;gap:.6rem"><button class="btn-g">Export CSV</button><button class="btn-r" onclick="toast('Report generated','green','✓')">Generate Report</button></div>
+  </div>
+  <div class="kpi-grid">
+    <div class="kpi"><div class="kpi-icon red"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div><span class="kpi-delta up">+8.3%</span><div class="kpi-num" id="kpi-users">0</div><div class="kpi-label">Total users</div></div>
+    <div class="kpi"><div class="kpi-icon gold"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></div><span class="kpi-delta up">+12%</span><div class="kpi-num" id="kpi-revenue">0</div><div class="kpi-label">Monthly revenue</div></div>
+    <div class="kpi"><div class="kpi-icon green"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg></div><span class="kpi-delta up">+5.1%</span><div class="kpi-num" id="kpi-charity">0</div><div class="kpi-label">Charity donations</div></div>
+    <div class="kpi"><div class="kpi-icon blue"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/></svg></div><span class="kpi-delta up">+2</span><div class="kpi-num" id="kpi-draws">0</div><div class="kpi-label">Draws completed</div></div>
+  </div>
+  <div class="analytics-grid">
+    <div class="card">
+      <div class="c-hdr"><div class="c-trow"><div class="c-ic gold"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 20V10M18 20V4M6 20v-4"/></svg></div><div><div class="c-ttl">Revenue by Month</div><div class="c-sub">Last 6 months</div></div></div></div>
+      <div class="chart-bar-wrap" id="rev-chart"></div>
+    </div>
+    <div class="card">
+      <div class="c-hdr"><div class="c-trow"><div class="c-ic green"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg></div><div><div class="c-ttl">Charity Distribution</div><div class="c-sub">Top categories</div></div></div></div>
+      <div class="chart-bar-wrap" id="charity-chart"></div>
+    </div>
+  </div>
+  <!-- Recent activity -->
+  <div class="card" style="margin-top:1rem">
+    <div class="c-hdr"><div class="c-trow"><div class="c-ic red"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div><div class="c-ttl">System Activity Log</div></div></div>
+    <div class="timeline" id="activity-log"></div>
+  </div>
+</div>
+
+<!-- ══ USERS ══ -->
+<div class="section" id="sec-users">
+  <div class="p-hdr">
+    <div><h1 class="ptitle">User <em>Management</em></h1><p class="psub">12,400 registered users · 10,840 active subscriptions</p></div>
+    <div style="display:flex;gap:.6rem"><button class="btn-g">Export</button><button class="btn-r" onclick="toast('Invite link copied','gold','✓')">+ Invite User</button></div>
+  </div>
+  <div class="card">
+    <div class="tbl-controls">
+      <div class="tbl-search"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg><input type="text" placeholder="Search users by name, email or plan…" oninput="filterUsers(this.value)" id="user-search"/></div>
+      <div class="tbl-filter-row">
+        <button class="tbl-chip active" onclick="filterUserStatus('all',this)">All</button>
+        <button class="tbl-chip" onclick="filterUserStatus('active',this)">Active</button>
+        <button class="tbl-chip" onclick="filterUserStatus('expired',this)">Expired</button>
+        <button class="tbl-chip" onclick="filterUserStatus('cancelled',this)">Cancelled</button>
+      </div>
+    </div>
+    <div class="tbl-wrap"><table class="data-table"><thead><tr><th>User</th><th>Email</th><th>Plan</th><th>Status</th><th>Joined</th><th>Scores</th><th>Won</th><th>Actions</th></tr></thead><tbody id="users-tbody"></tbody></table></div>
+  </div>
+</div>
+
+<!-- ══ DRAWS ══ -->
+<div class="section" id="sec-draws">
+  <div class="p-hdr">
+    <div><h1 class="ptitle">Draw <em>Management</em></h1><p class="psub">Configure, simulate and publish monthly draws</p></div>
+    <div style="display:flex;gap:.6rem"><button class="btn-g" onclick="toast('Draw schedule exported','gold','↓')">Export Schedule</button></div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 300px;gap:1rem;align-items:start">
+    <div style="display:flex;flex-direction:column;gap:1rem">
+      <!-- DRAW STUDIO -->
+      <div class="draw-studio">
+        <div class="ds-title">Draw #13 — Studio</div>
+        <div class="ds-sub">Configure draw type and run simulation before publishing</div>
+        <div class="mode-toggle">
+          <button class="mode-btn active" id="dm-random" onclick="setDrawMode('random')">🎲 Random</button>
+          <button class="mode-btn" id="dm-algo" onclick="setDrawMode('algo')">⚡ Algorithm</button>
+        </div>
+        <div class="draw-balls-preview" id="studio-balls"></div>
+        <div>
+          <button class="draw-run-btn" id="studio-run-btn" onclick="runStudio()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5,3 19,12 5,21"/></svg>
+            <span id="studio-btn-txt">Run Simulation</span>
+          </button>
+          <button class="pub-btn" id="pub-btn" onclick="publishDraw()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 11l3 3L22 4"/></svg>
+            Publish Results
+          </button>
+        </div>
+        <div class="draw-result-strip" id="studio-result"></div>
+      </div>
+      <!-- DRAW HISTORY -->
+      <div class="card">
+        <div class="c-hdr"><div class="c-trow"><div class="c-ic blue"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg></div><div><div class="c-ttl">Draw History</div><div class="c-sub">All 12 completed draws</div></div></div></div>
+        <div class="tbl-wrap"><table class="data-table"><thead><tr><th>Draw</th><th>Date</th><th>Mode</th><th>Numbers</th><th>Winners</th><th>Pool</th><th>Status</th><th>Actions</th></tr></thead><tbody id="draws-tbody"></tbody></table></div>
+      </div>
+    </div>
+    <div class="card" style="position:sticky;top:calc(var(--nav)+1.75rem)">
+      <div class="c-hdr"><div class="c-trow"><div class="c-ic gold"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div><div class="c-ttl">Draw Stats</div></div></div>
+      <div style="display:flex;flex-direction:column;gap:.6rem;font-size:.78rem">
+        <div style="display:flex;justify-content:space-between"><span style="color:var(--mu)">Total draws</span><span>12</span></div>
+        <div style="display:flex;justify-content:space-between"><span style="color:var(--mu)">5-match jackpots</span><span style="color:var(--gold)">1</span></div>
+        <div style="display:flex;justify-content:space-between"><span style="color:var(--mu)">4-match wins</span><span style="color:var(--gold)">8</span></div>
+        <div style="display:flex;justify-content:space-between"><span style="color:var(--mu)">3-match wins</span><span style="color:var(--gold)">24</span></div>
+        <div style="display:flex;justify-content:space-between"><span style="color:var(--mu)">Total paid out</span><span style="color:var(--em)">$84,600</span></div>
+        <div style="display:flex;justify-content:space-between"><span style="color:var(--mu)">Rollover pool</span><span style="color:var(--gold)">$0</span></div>
+        <div style="display:flex;justify-content:space-between"><span style="color:var(--mu)">Next draw</span><span style="color:var(--gold)">May 29</span></div>
+        <div style="display:flex;justify-content:space-between"><span style="color:var(--mu)">Next pool est.</span><span>$14,880</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ CHARITIES ══ -->
+<div class="section" id="sec-charities">
+  <div class="p-hdr">
+    <div><h1 class="ptitle">Charity <em>Management</em></h1><p class="psub">340 active charity partners · $2.84M donated to date</p></div>
+    <div style="display:flex;gap:.6rem"><button class="btn-g">Export</button><button class="btn-em" onclick="toast('Add charity form opening…','green','✓')">+ Add Charity</button></div>
+  </div>
+  <div class="charity-admin-grid" id="charities-grid"></div>
+</div>
+
+<!-- ══ WINNERS ══ -->
+<div class="section" id="sec-winners">
+  <div class="p-hdr">
+    <div><h1 class="ptitle">Winners <em>Verification</em></h1><p class="psub">3 pending claims · 2 awaiting payout</p></div>
+    <div style="display:flex;gap:.6rem"><button class="btn-g">Export All</button><button class="btn-p" onclick="toast('Batch payout initiated','green','$')">Batch Payout</button></div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 280px;gap:1rem">
+    <div id="winners-list"></div>
+    <div class="card" style="position:sticky;top:calc(var(--nav)+1.75rem)">
+      <div class="c-hdr"><div class="c-trow"><div class="c-ic gold"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></div><div class="c-ttl">Payout Summary</div></div></div>
+      <div style="display:flex;flex-direction:column;gap:.55rem;font-size:.78rem;margin-bottom:1rem">
+        <div style="display:flex;justify-content:space-between"><span style="color:var(--mu)">Pending review</span><span style="color:var(--gold)">3 claims</span></div>
+        <div style="display:flex;justify-content:space-between"><span style="color:var(--mu)">Awaiting payout</span><span style="color:var(--gold)">$1,180</span></div>
+        <div style="display:flex;justify-content:space-between"><span style="color:var(--mu)">Paid this month</span><span style="color:var(--em)">$340</span></div>
+        <div style="display:flex;justify-content:space-between"><span style="color:var(--mu)">All-time paid</span><span style="color:var(--em)">$84,600</span></div>
+      </div>
+      <button class="btn-em" style="width:100%;justify-content:center" onclick="toast('All pending claims approved','green','✓')">Approve All Pending</button>
+    </div>
+  </div>
+</div>
+
+</div><!-- /main -->
+<div class="tw" id="toast-wrap"></div>
+
+<script>
+/* ══ DATA ══ */
+const USERS = [
+  {id:1,name:'James Doe',email:'james@example.com',plan:'pro',status:'active',joined:'Jan 2025',scores:3,won:2},
+  {id:2,name:'Sarah Kim',email:'sarah.k@example.com',plan:'pro',status:'active',joined:'Feb 2025',scores:5,won:1},
+  {id:3,name:'Marcus Webb',email:'m.webb@example.com',plan:'starter',status:'active',joined:'Jan 2025',scores:2,won:0},
+  {id:4,name:'Priya Nair',email:'priya.n@example.com',plan:'pro',status:'expired',joined:'Nov 2024',scores:0,won:3},
+  {id:5,name:'Tom Briggs',email:'tbriggs@example.com',plan:'starter',status:'active',joined:'Mar 2025',scores:4,won:0},
+  {id:6,name:'Aisha Mensah',email:'aisha.m@example.com',plan:'pro',status:'active',joined:'Dec 2024',scores:5,won:2},
+  {id:7,name:'Luca Ferrari',email:'luca.f@example.com',plan:'starter',status:'cancelled',joined:'Oct 2024',scores:0,won:0},
+  {id:8,name:'Chen Wei',email:'c.wei@example.com',plan:'pro',status:'active',joined:'Feb 2025',scores:3,won:1},
+];
+const DRAWS_HIST = [
+  {id:'#12',date:'Apr 29',mode:'algo',nums:'7-14-22-31-44 | B:9',winners:3,pool:'$12,000',status:'published'},
+  {id:'#11',date:'Mar 29',mode:'random',nums:'4-12-22-31-38 | B:9',winners:2,pool:'$11,400',status:'published'},
+  {id:'#10',date:'Feb 28',mode:'algo',nums:'7-14-22-36-44 | B:42',winners:4,pool:'$10,800',status:'published'},
+  {id:'#9', date:'Jan 29',mode:'random',nums:'3-19-27-33-41 | B:15',winners:1,pool:'$10,200',status:'published'},
+  {id:'#8', date:'Dec 29',mode:'algo',nums:'7-22-29-38-45 | B:14',winners:5,pool:'$9,600',status:'published'},
+];
+const CHARITIES_ADMIN = [
+  {icon:'❤️',name:'Heart Foundation',cat:'health',donors:'18.4K',raised:'$4.2M',active:true},
+  {icon:'🌊',name:'Ocean Conservancy',cat:'environment',donors:'12.1K',raised:'$2.8M',active:true},
+  {icon:'🧒',name:'Save the Children',cat:'children',donors:'44.2K',raised:'$9.1M',active:true},
+  {icon:'🐼',name:'WWF Wildlife Fund',cat:'animals',donors:'31.7K',raised:'$6.5M',active:true},
+  {icon:'📚',name:'Global Education',cat:'education',donors:'8.6K',raised:'$1.9M',active:true},
+  {icon:'🎗️',name:'Cancer Research',cat:'health',donors:'67.5K',raised:'$12.3M',active:true},
+];
+const WINNERS = [
+  {id:1,name:'James Doe',initials:'JD',draw:'Draw #12',tier:'4 Match',prize:'$840',status:'pending',method:'Bank transfer',submitted:'Apr 29, 2025'},
+  {id:2,name:'Sarah Kim',initials:'SK',draw:'Draw #12',tier:'3 Match',prize:'$60',status:'review',method:'PayPal',submitted:'Apr 29, 2025'},
+  {id:3,name:'Aisha Mensah',initials:'AM',draw:'Draw #12',tier:'4 Match',prize:'$280',status:'pending',method:'Bank transfer',submitted:'Apr 30, 2025'},
+];
+const ACTIVITY = [
+  {dot:'red',text:'<strong>Draw #12</strong> published — 3 winners notified',time:'2h ago'},
+  {dot:'green',text:'<strong>$4,800</strong> jackpot rolled over — no 5-match winner',time:'2h ago'},
+  {dot:'gold',text:'<strong>James Doe</strong> submitted a 4-match claim',time:'3h ago'},
+  {dot:'blue',text:'New user signup — <strong>Tom Briggs</strong> (Starter plan)',time:'6h ago'},
+  {dot:'green',text:'<strong>$3,600</strong> charity distribution processed',time:'8h ago'},
+  {dot:'gold',text:'<strong>Sarah Kim</strong> submitted a 3-match claim',time:'12h ago'},
+  {dot:'red',text:'Draw #12 simulation run — mode: Algorithm',time:'1d ago'},
+];
+const REV_MONTHS=[{m:'Nov',v:142000},{m:'Dec',v:168000},{m:'Jan',v:189000},{m:'Feb',v:210000},{m:'Mar',v:228000},{m:'Apr',v:247000}];
+const CHARITY_CATS=[{c:'Health',v:38,col:'red'},{c:'Children',v:28,col:'blue'},{c:'Environment',v:18,col:'green'},{c:'Animals',v:10,col:'gold'},{c:'Education',v:6,col:'blue'}];
+
+let userFilter='all';
+let userQuery='';
+let drawMode='random';
+let studioRunning=false;
+let studioResult=[];
+
+/* ══ SECTION SWITCH ══ */
+function switchSec(id,btn){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.s-item').forEach(b=>b.classList.remove('active'));
+  document.getElementById('sec-'+id).classList.add('active');
+  btn.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+/* ══ ANALYTICS ══ */
+function initAnalytics(){
+  gsap.to({v:0},{v:12400,duration:2,ease:'power2.out',delay:.3,onUpdate:function(){document.getElementById('kpi-users').textContent=Math.round(this.targets()[0].v).toLocaleString();}});
+  gsap.to({v:0},{v:247000,duration:2.2,ease:'power2.out',delay:.4,onUpdate:function(){let v=this.targets()[0].v;document.getElementById('kpi-revenue').textContent='$'+Math.round(v/1000)+'K';}});
+  gsap.to({v:0},{v:74000,duration:2,ease:'power2.out',delay:.5,onUpdate:function(){let v=this.targets()[0].v;document.getElementById('kpi-charity').textContent='$'+Math.round(v/1000)+'K';}});
+  gsap.to({v:0},{v:12,duration:1.5,ease:'power2.out',delay:.6,onUpdate:function(){document.getElementById('kpi-draws').textContent=Math.round(this.targets()[0].v);}});
+  // rev chart
+  const maxRev=Math.max(...REV_MONTHS.map(x=>x.v));
+  document.getElementById('rev-chart').innerHTML=REV_MONTHS.map(r=>`
+    <div class="bar-row">
+      <span class="bar-label">${r.m}</span>
+      <div class="bar-track"><div class="bar-fill gold" data-w="${Math.round(r.v/maxRev*100)}%" style="width:0%"></div></div>
+      <span class="bar-val">$${(r.v/1000).toFixed(0)}K</span>
+    </div>`).join('');
+  // charity chart
+  const maxCh=Math.max(...CHARITY_CATS.map(x=>x.v));
+  document.getElementById('charity-chart').innerHTML=CHARITY_CATS.map(c=>`
+    <div class="bar-row">
+      <span class="bar-label">${c.c}</span>
+      <div class="bar-track"><div class="bar-fill ${c.col}" data-w="${c.v}%" style="width:0%"></div></div>
+      <span class="bar-val">${c.v}%</span>
+    </div>`).join('');
+  setTimeout(()=>{document.querySelectorAll('.bar-fill').forEach(b=>gsap.to(b,{width:b.dataset.w,duration:1.1,ease:'power3.out',delay:Math.random()*.3}));},400);
+  // activity log
+  document.getElementById('activity-log').innerHTML=ACTIVITY.map(a=>`
+    <div class="tl-item"><div class="tl-dot ${a.dot}"></div><div class="tl-text">${a.text}</div><div class="tl-time">${a.time}</div></div>`).join('');
+  gsap.from('.tl-item',{opacity:0,x:-10,stagger:.05,duration:.4,ease:'power2.out',delay:.6});
+}
+
+/* ══ USERS ══ */
+function renderUsers(){
+  const q=userQuery.toLowerCase();
+  const filtered=USERS.filter(u=>{
+    const mq=!q||u.name.toLowerCase().includes(q)||u.email.toLowerCase().includes(q)||u.plan.includes(q);
+    const mf=userFilter==='all'||u.status===userFilter;
+    return mq&&mf;
+  });
+  document.getElementById('users-tbody').innerHTML=filtered.map(u=>`
+    <tr>
+      <td><span class="avatar-chip">${u.name.split(' ').map(x=>x[0]).join('')}</span>${u.name}</td>
+      <td style="color:var(--mu)">${u.email}</td>
+      <td><span class="pill ${u.plan}">${u.plan.charAt(0).toUpperCase()+u.plan.slice(1)}</span></td>
+      <td><span class="pill ${u.status}">${u.status.charAt(0).toUpperCase()+u.status.slice(1)}</span></td>
+      <td style="color:var(--mu)">${u.joined}</td>
+      <td style="text-align:center">${u.scores}</td>
+      <td style="color:var(--gold);font-weight:600">${u.won}</td>
+      <td>
+        <div class="tbl-actions">
+          <button class="tbl-btn warn" onclick="toast('Editing user ${u.name}','gold','✎')">Edit</button>
+          <button class="tbl-btn" onclick="toast('Email sent to ${u.name}','blue','✉')">Email</button>
+          <button class="tbl-btn danger" onclick="toast('User suspended','red','✕')">Suspend</button>
+        </div>
+      </td>
+    </tr>`).join('');
+  gsap.from('#users-tbody tr',{opacity:0,y:8,stagger:.04,duration:.3,ease:'power2.out'});
+}
+function filterUsers(q){userQuery=q;renderUsers();}
+function filterUserStatus(f,btn){
+  userFilter=f;
+  document.querySelectorAll('.tbl-chip').forEach(c=>c.classList.remove('active'));
+  btn.classList.add('active');
+  renderUsers();
+}
+
+/* ══ DRAWS ══ */
+function renderDrawHistory(){
+  document.getElementById('draws-tbody').innerHTML=DRAWS_HIST.map(d=>`
+    <tr>
+      <td style="font-weight:600">Draw ${d.id}</td>
+      <td style="color:var(--mu)">${d.date}</td>
+      <td><span class="pill ${d.mode}">${d.mode==='algo'?'⚡ Algo':'🎲 Random'}</span></td>
+      <td style="color:var(--mu);font-size:.72rem">${d.nums}</td>
+      <td style="text-align:center">${d.winners}</td>
+      <td style="color:var(--gold);font-weight:600">${d.pool}</td>
+      <td><span class="pill ${d.status}">${d.status.charAt(0).toUpperCase()+d.status.slice(1)}</span></td>
+      <td>
+        <div class="tbl-actions">
+          <button class="tbl-btn" onclick="toast('Viewing draw ${d.id} details','blue','◎')">View</button>
+          <button class="tbl-btn warn" onclick="toast('Exporting draw ${d.id}','gold','↓')">Export</button>
+        </div>
+      </td>
+    </tr>`).join('');
+}
+function setDrawMode(m){
+  drawMode=m;
+  document.getElementById('dm-random').classList.toggle('active',m==='random');
+  document.getElementById('dm-algo').classList.toggle('active',m==='algo');
+  if(studioResult.length)resetStudio();
+}
+function renderStudioBalls(nums){
+  const c=document.getElementById('studio-balls');
+  c.innerHTML=[0,1,2,3,4,'B'].map((l,i)=>`<div class="db-ball" id="sb-${i}">${l==='B'?'B':'?'}</div>`).join('');
+}
+function runStudio(){
+  if(studioRunning)return;
+  studioRunning=true;
+  const btn=document.getElementById('studio-run-btn');
+  btn.disabled=true;
+  document.getElementById('studio-btn-txt').textContent='Drawing…';
+  studioResult=[];
+  const pool=Array.from({length:49},(_,i)=>i+1);
+  while(studioResult.length<6){const n=pool[Math.floor(Math.random()*pool.length)];if(!studioResult.includes(n))studioResult.push(n);}
+  studioResult.sort((a,b)=>a-b);
+  // roll balls one by one
+  const balls=[0,1,2,3,4,5].map(i=>document.getElementById('sb-'+i));
+  balls.forEach(b=>b.classList.add('rolling'));
+  const ivs=balls.map(b=>setInterval(()=>{b.textContent=Math.floor(Math.random()*49)+1;},80));
+  studioResult.forEach((n,i)=>{
+    setTimeout(()=>{
+      clearInterval(ivs[i]);balls[i].classList.remove('rolling');
+      let c2=0,iv2=setInterval(()=>{balls[i].textContent=Math.floor(Math.random()*49)+1;if(++c2>6){clearInterval(iv2);balls[i].textContent=n;balls[i].classList.add('set');gsap.fromTo(balls[i],{scale:.8},{scale:1,duration:.4,ease:'back.out(2)'});}},60);
+      if(i===5){setTimeout(()=>{studioRunning=false;document.getElementById('studio-btn-txt').textContent='Re-Simulate';btn.disabled=false;document.getElementById('pub-btn').classList.add('show');const rs=document.getElementById('studio-result');rs.classList.add('show');rs.innerHTML=`<strong style="color:var(--gold)">Simulation complete</strong> · Numbers: ${studioResult.slice(0,5).join(' - ')} | Bonus: ${studioResult[5]} · Mode: ${drawMode==='algo'?'⚡ Algorithm':'🎲 Random'} · Ready to publish.`;},700);}
+    },1000+i*650);
+  });
+}
+function resetStudio(){studioResult=[];renderStudioBalls();document.getElementById('pub-btn').classList.remove('show');document.getElementById('studio-result').classList.remove('show');document.getElementById('studio-btn-txt').textContent='Run Simulation';document.getElementById('studio-run-btn').disabled=false;}
+function publishDraw(){toast('Draw #13 published — 12,400 users notified!','green','✓');document.getElementById('pub-btn').classList.remove('show');document.getElementById('studio-result').innerHTML='<strong style="color:var(--em)">✓ Published</strong> · Draw #13 is now live. Results page updated.';}
+
+/* ══ CHARITIES ADMIN ══ */
+function renderCharitiesAdmin(){
+  const grid=document.getElementById('charities-grid');
+  grid.innerHTML=CHARITIES_ADMIN.map(c=>`
+    <div class="ca-card">
+      <div class="ca-top"><div class="ca-icon">${c.icon}</div><div><div class="ca-name">${c.name}</div><div class="ca-cat">${c.cat}</div></div></div>
+      <div class="ca-stats">
+        <div><div class="ca-stat-num">${c.raised}</div><div class="ca-stat-lbl">Raised</div></div>
+        <div><div class="ca-stat-num" style="color:var(--gold)">${c.donors}</div><div class="ca-stat-lbl">Donors</div></div>
+      </div>
+      <div class="ca-actions">
+        <button class="ca-btn" onclick="toast('Editing ${c.name}','gold','✎')">Edit</button>
+        <button class="ca-btn" onclick="toast('${c.name} report open','blue','↗')">Report</button>
+        <button class="ca-btn danger" onclick="toast('${c.name} deactivated','red','✕')">Remove</button>
+      </div>
+    </div>`).join('')+`
+    <div class="add-charity-card" onclick="toast('Add charity form opening…','green','✓')">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--em)" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+      <span style="font-size:.8rem;color:var(--em)">Add New Charity</span>
+    </div>`;
+  gsap.from('.ca-card,.add-charity-card',{opacity:0,y:12,stagger:.07,duration:.4,ease:'power2.out'});
+}
+
+/* ══ WINNERS ══ */
+function renderWinners(){
+  const list=document.getElementById('winners-list');
+  list.innerHTML=WINNERS.map(w=>`
+    <div class="winner-card" id="wc-${w.id}">
+      <div class="wc-top">
+        <div class="wc-avatar">${w.initials}</div>
+        <div class="wc-info"><div class="wc-name">${w.name}</div><div class="wc-draw">${w.draw} · ${w.tier} · ${w.method}</div></div>
+        <div style="text-align:right"><div class="wc-prize">${w.prize}</div><div class="wc-tier">${w.tier}</div></div>
+        <span class="pill ${w.status}" style="margin-left:.5rem">${w.status.charAt(0).toUpperCase()+w.status.slice(1)}</span>
+      </div>
+      <div class="wc-proof">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        <span>scorecard_proof_${w.id}.jpg · 2.1MB · Uploaded ${w.submitted}</span>
+        <a href="#">View file ↗</a>
+      </div>
+      <div class="wc-actions">
+        <button class="tbl-btn success" onclick="approveWinner(${w.id})">✓ Approve</button>
+        <button class="tbl-btn danger" onclick="rejectWinner(${w.id})">✕ Reject</button>
+        <button class="tbl-btn" onclick="toast('Emailing ${w.name}…','blue','✉')">Email User</button>
+        <button class="tbl-btn warn" onclick="toast('Marking ${w.prize} as paid','gold','$')">Mark Paid</button>
+      </div>
+    </div>`).join('');
+  gsap.from('.winner-card',{opacity:0,y:12,stagger:.1,duration:.4,ease:'power2.out'});
+}
+function approveWinner(id){
+  const el=document.getElementById('wc-'+id);
+  const w=WINNERS.find(x=>x.id===id);
+  gsap.to(el,{borderColor:'var(--em)',duration:.4});
+  el.querySelector('.pill').className='pill approved';
+  el.querySelector('.pill').textContent='Approved';
+  toast(`${w.name}'s claim approved — payout queued`,'green','✓');
+}
+function rejectWinner(id){
+  const el=document.getElementById('wc-'+id);
+  const w=WINNERS.find(x=>x.id===id);
+  gsap.to(el,{opacity:0,x:-20,duration:.4,onComplete:()=>el.remove()});
+  toast(`${w.name}'s claim rejected`,'red','✕');
+}
+
+/* ══ TOAST ══ */
+function toast(msg,color,icon){
+  const c=document.getElementById('toast-wrap');
+  const t=document.createElement('div');
+  t.className='toast';
+  t.innerHTML=`<div class="t-ic ${color}">${icon}</div><span style="flex:1;color:var(--tx)">${msg}</span><button class="t-x" onclick="this.parentElement.remove()">✕</button>`;
+  c.appendChild(t);
+  requestAnimationFrame(()=>requestAnimationFrame(()=>t.classList.add('show')));
+  setTimeout(()=>{t.classList.remove('show');setTimeout(()=>t.remove(),500)},4500);
+}
+
+/* ══ INIT ══ */
+renderStudioBalls();
+initAnalytics();
+renderUsers();
+renderDrawHistory();
+renderCharitiesAdmin();
+renderWinners();
+gsap.from('.s-item',{opacity:0,x:-10,stagger:.04,duration:.4,ease:'power2.out',delay:.1});
+gsap.from('.kpi',{opacity:0,y:20,stagger:.08,duration:.5,ease:'power3.out',delay:.2});
+</script>
+</body>
+</html>

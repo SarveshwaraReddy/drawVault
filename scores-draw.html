@@ -1,0 +1,1069 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>DrawVault — Scores & Draw</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --gold:#C9A96E;--gl:#E8C98A;--gd:#9A7A4A;--gbg:rgba(201,169,110,.07);--gbg2:rgba(201,169,110,.13);
+  --em:#1DB584;--emd:#0F6A50;--embg:rgba(29,181,132,.07);--embg2:rgba(29,181,132,.13);
+  --red:#E24B4A;--rdbg:rgba(226,75,74,.08);
+  --blue:#2D8BDE;--blbg:rgba(45,139,222,.08);--blbg2:rgba(45,139,222,.14);
+  --bg:#05080F;--bg2:#080D18;--bg3:#0C1220;--bg4:#0F1628;
+  --g:rgba(255,255,255,.04);--gb:rgba(255,255,255,.07);--gb2:rgba(255,255,255,.12);--gb3:rgba(255,255,255,.2);
+  --tx:#EEE9DE;--mu:#8A8784;--fa:#3D3C3A;--fa2:#1C1E24;
+  --fd:'DM Serif Display',serif;--fb:'Outfit',sans-serif;
+  --nav:64px;--side:240px;
+}
+html,body{min-height:100%;background:var(--bg);color:var(--tx);font-family:var(--fb);overflow-x:hidden}
+::-webkit-scrollbar{width:3px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--fa);border-radius:2px}
+
+/* ━━ TOPBAR ━━ */
+.topbar{position:fixed;top:0;left:0;right:0;height:var(--nav);z-index:200;background:rgba(5,8,15,.92);backdrop-filter:blur(24px);border-bottom:1px solid var(--gb);display:flex;align-items:center;padding:0 1.5rem;gap:1.5rem}
+.topbar-logo{font-family:var(--fd);font-size:1.35rem;color:var(--gold);white-space:nowrap;text-decoration:none}
+.topbar-logo span{color:var(--tx);font-style:italic}
+.topbar-breadcrumb{display:flex;align-items:center;gap:.5rem;font-size:.8rem;color:var(--mu)}
+.topbar-breadcrumb span{color:var(--tx);font-weight:500}
+.topbar-breadcrumb svg{color:var(--fa)}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:1rem}
+.tab-switcher{display:flex;background:var(--fa2);border:1px solid var(--gb);border-radius:2rem;padding:3px;gap:2px}
+.tab-btn{padding:.4rem 1.1rem;border-radius:2rem;border:none;background:transparent;color:var(--mu);font-family:var(--fb);font-size:.78rem;font-weight:500;cursor:pointer;transition:all .3s;white-space:nowrap}
+.tab-btn.active{background:var(--gb2);color:var(--tx)}
+.topbar-avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--gd),var(--gold));display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;color:#05080F;cursor:pointer}
+
+/* ━━ SIDEBAR ━━ */
+.sidebar{position:fixed;top:var(--nav);left:0;bottom:0;width:var(--side);background:var(--bg2);border-right:1px solid var(--gb);padding:1.25rem 0;display:flex;flex-direction:column;z-index:100}
+.nav-item{display:flex;align-items:center;gap:.75rem;padding:.6rem .75rem;border-radius:.75rem;cursor:pointer;transition:all .2s;font-size:.82rem;color:var(--mu);margin:0 .75rem 2px;border:1px solid transparent}
+.nav-item:hover{background:var(--g);color:var(--tx)}
+.nav-item.active{background:var(--gbg);border-color:rgba(201,169,110,.2);color:var(--gold)}
+.nav-item svg{flex-shrink:0;color:inherit;opacity:.7}
+.sidebar-label{font-size:.62rem;letter-spacing:.15em;text-transform:uppercase;color:var(--fa);padding:0 1.5rem;margin:1rem 0 .4rem}
+.sidebar-bottom{margin-top:auto;padding:.75rem}
+.sub-badge{background:var(--gbg);border:1px solid rgba(201,169,110,.2);border-radius:.75rem;padding:.85rem 1rem}
+.sub-badge-status{display:flex;align-items:center;gap:.35rem;font-size:.65rem;font-weight:700;letter-spacing:.08em;color:var(--em);margin-bottom:.3rem}
+.live-dot{width:5px;height:5px;border-radius:50%;background:var(--em);animation:blink 2s ease-in-out infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.sub-badge-plan{font-size:.82rem;font-weight:600}
+.sub-badge-renew{font-size:.7rem;color:var(--mu);margin-top:.15rem}
+
+/* ━━ MAIN ━━ */
+.main{margin-left:var(--side);margin-top:var(--nav);min-height:calc(100vh - var(--nav))}
+
+/* ━━ SECTIONS ━━ */
+.section{display:none;padding:2rem 2rem 4rem;animation:fadeSlide .45s cubic-bezier(.4,0,.2,1) both}
+.section.active{display:block}
+@keyframes fadeSlide{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+
+/* ━━ PAGE HEADER ━━ */
+.page-hdr{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:2rem;flex-wrap:wrap;gap:1rem}
+/* .page-hdr-left{} */
+.page-eyebrow{font-size:.72rem;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);margin-bottom:.35rem}
+.page-title{font-family:var(--fd);font-size:2rem;line-height:1.1}
+.page-title em{color:var(--gold);font-style:italic}
+.page-sub{font-size:.85rem;color:var(--mu);margin-top:.3rem}
+.page-hdr-actions{display:flex;gap:.75rem;align-items:center}
+.btn-primary{padding:.7rem 1.4rem;border-radius:2rem;border:none;background:var(--gold);color:#05080F;font-family:var(--fb);font-size:.82rem;font-weight:700;cursor:pointer;transition:all .25s;display:flex;align-items:center;gap:.45rem}
+.btn-primary:hover{background:var(--gl);transform:translateY(-2px);box-shadow:0 10px 30px rgba(201,169,110,.25)}
+.btn-ghost{padding:.7rem 1.2rem;border-radius:2rem;border:1px solid var(--gb2);background:transparent;color:var(--mu);font-family:var(--fb);font-size:.82rem;cursor:pointer;transition:all .25s}
+.btn-ghost:hover{border-color:var(--gb3);color:var(--tx)}
+
+/* ════════════════════════════════════════════
+   FEATURE 4 — SCORE ENTRY
+════════════════════════════════════════════ */
+.score-layout{display:grid;grid-template-columns:1fr 320px;gap:1.5rem;align-items:start}
+.score-col{display:flex;flex-direction:column;gap:1.5rem}
+
+/* card base */
+.card{background:var(--g);border:1px solid var(--gb);border-radius:1.5rem;padding:1.5rem;position:relative;overflow:hidden}
+.card::after{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.06),transparent)}
+.card-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem}
+.card-title-row{display:flex;align-items:center;gap:.6rem}
+.card-ic{width:30px;height:30px;border-radius:.55rem;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.card-ic.gold{background:var(--gbg2);color:var(--gold)}
+.card-ic.green{background:var(--embg2);color:var(--em)}
+.card-ic.blue{background:var(--blbg2);color:var(--blue)}
+.card-ic.red{background:var(--rdbg);color:var(--red)}
+.card-ttl{font-size:.88rem;font-weight:600}
+.card-sub{font-size:.73rem;color:var(--mu);margin-top:.1rem}
+.c-action{font-size:.73rem;color:var(--gold);background:none;border:1px solid transparent;border-radius:.4rem;font-family:var(--fb);cursor:pointer;padding:.25rem .6rem;transition:all .2s}
+.c-action:hover{border-color:rgba(201,169,110,.2);background:var(--gbg)}
+
+/* ── SCORE SLOTS ── */
+.slot-grid{display:flex;flex-direction:column;gap:.55rem}
+.score-slot{display:grid;grid-template-columns:28px 1fr auto auto;gap:.9rem;align-items:center;padding:.9rem 1.1rem;border:1px solid var(--gb);border-radius:1.1rem;background:var(--bg3);transition:all .35s;position:relative;overflow:hidden}
+.score-slot::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:0 2px 2px 0;transition:background .3s}
+.score-slot.rank1::before{background:var(--gold)}
+.score-slot.rank2::before{background:rgba(180,180,180,.4)}
+.score-slot.rank3::before{background:rgba(180,180,180,.2)}
+.score-slot.empty{border-style:dashed;background:transparent;opacity:.35}
+.score-slot.anim-in{animation:slotIn .5s cubic-bezier(.34,1.56,.64,1) both}
+.score-slot.anim-out{animation:slotOut .3s ease-in both}
+@keyframes slotIn{from{opacity:0;transform:translateX(24px) scale(.96)}to{opacity:1;transform:none}}
+@keyframes slotOut{to{opacity:0;transform:translateX(-24px) scale(.96)}}
+.s-rank{width:28px;height:28px;border-radius:.5rem;display:flex;align-items:center;justify-content:center;font-size:.68rem;font-weight:700;flex-shrink:0}
+.s-rank.r1{background:var(--gbg2);color:var(--gold)}
+.s-rank.r2{background:rgba(180,180,180,.09);color:#aaa}
+.s-rank.r3,.s-rank.r4,.s-rank.r5{background:rgba(180,180,180,.06);color:var(--fa)}
+.s-rank.re{background:var(--g);color:var(--fa)}
+.s-info{min-width:0}
+.s-score{font-family:var(--fd);font-size:1.45rem;line-height:1}
+.s-date{font-size:.7rem;color:var(--mu);margin-top:.1rem}
+.s-bar-col{display:flex;flex-direction:column;gap:.3rem;align-items:flex-end}
+.s-pct{font-size:.68rem;color:var(--mu)}
+.s-bar{width:72px;height:4px;background:var(--gb);border-radius:2px;overflow:hidden}
+.s-bar-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--gd),var(--gold));width:0%;transition:width .9s cubic-bezier(.4,0,.2,1)}
+.s-del{width:26px;height:26px;border-radius:.4rem;border:1px solid var(--gb);background:transparent;color:var(--fa);cursor:pointer;font-size:.75rem;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0}
+.s-del:hover{border-color:var(--red);color:var(--red);background:var(--rdbg)}
+.newest-tag{position:absolute;top:1.7rem;right:9rem;font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);background:var(--gbg2);border:1px solid rgba(201,169,110,.2);padding:2px 6px;border-radius:.3rem;font-weight:700}
+.slot-cap{display:flex;justify-content:space-between;margin-top:.6rem;font-size:.73rem;color:var(--fa);padding:0 .25rem}
+.slot-cap span:last-child{color:var(--gold);font-weight:500}
+
+/* ── INLINE SCORE FORM ── */
+.score-form{display:grid;grid-template-columns:1fr 1fr auto;gap:.65rem;align-items:flex-end}
+.f-group{display:flex;flex-direction:column;gap:.35rem}
+.f-label{font-size:.68rem;letter-spacing:.09em;text-transform:uppercase;color:var(--mu);font-weight:500}
+.f-input{padding:.65rem .85rem;background:var(--bg4);border:1px solid var(--gb);border-radius:.75rem;color:var(--tx);font-family:var(--fb);font-size:.88rem;outline:none;transition:all .25s;width:100%}
+.f-input:focus{border-color:var(--gold);background:var(--gbg)}
+.f-input::placeholder{color:var(--fa)}
+.f-submit{padding:.65rem 1.1rem;border-radius:.75rem;border:none;background:var(--gold);color:#05080F;font-family:var(--fb);font-size:.82rem;font-weight:700;cursor:pointer;transition:all .25s;white-space:nowrap;display:flex;align-items:center;gap:.4rem}
+.f-submit:hover{background:var(--gl);transform:translateY(-1px)}
+.f-err{font-size:.73rem;color:var(--red);display:flex;align-items:center;gap:.4rem;padding:.5rem .75rem;background:var(--rdbg);border:1px solid rgba(226,75,74,.2);border-radius:.6rem;margin-top:.5rem;display:none}
+.f-err.show{display:flex}
+
+/* ── SCORE CHART ── */
+.chart-wrap{height:160px;position:relative;margin:.5rem 0}
+.chart-svg{width:100%;height:100%}
+.chart-line{fill:none;stroke:url(#chartGrad);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.chart-area{fill:url(#areaGrad);opacity:.4}
+.chart-dot{fill:var(--gold);stroke:var(--bg3);stroke-width:2;cursor:pointer;transition:r .2s}
+.chart-dot:hover{r:6}
+.chart-x-labels{display:flex;justify-content:space-between;margin-top:.5rem;font-size:.68rem;color:var(--fa);padding:0 4px}
+.chart-tooltip{position:absolute;background:var(--bg2);border:1px solid var(--gb2);border-radius:.6rem;padding:.4rem .75rem;font-size:.75rem;pointer-events:none;opacity:0;transition:opacity .2s;white-space:nowrap;z-index:10}
+.chart-tooltip.show{opacity:1}
+
+/* ── SCORE HISTORY TABLE ── */
+.history-table{width:100%;border-collapse:collapse;font-size:.82rem}
+.history-table th{text-align:left;font-size:.65rem;letter-spacing:.12em;text-transform:uppercase;color:var(--mu);padding:.5rem .75rem;border-bottom:1px solid var(--gb);font-weight:500}
+.history-table td{padding:.65rem .75rem;border-bottom:1px solid rgba(255,255,255,.03);color:var(--tx)}
+.history-table tr:last-child td{border-bottom:none}
+.history-table tr:hover td{background:rgba(255,255,255,.02)}
+.ht-score{font-family:var(--fd);font-size:1rem}
+.ht-badge{display:inline-flex;align-items:center;gap:.3rem;font-size:.68rem;padding:2px 7px;border-radius:.4rem;font-weight:600}
+.ht-badge.best{background:var(--gbg2);color:var(--gold)}
+.ht-badge.active{background:var(--embg);color:var(--em)}
+.ht-badge.replaced{background:rgba(255,255,255,.05);color:var(--fa)}
+
+/* ── RIGHT PANEL ── */
+.score-sidebar{display:flex;flex-direction:column;gap:1.25rem}
+.stat-mini{display:grid;grid-template-columns:1fr 1fr;gap:.65rem}
+.stat-m{background:var(--bg3);border:1px solid var(--gb);border-radius:1rem;padding:.9rem 1rem}
+.stat-m-num{font-family:var(--fd);font-size:1.6rem;line-height:1;margin-bottom:.15rem}
+.stat-m-num.gold{color:var(--gold)}
+.stat-m-num.green{color:var(--em)}
+.stat-m-label{font-size:.68rem;color:var(--mu);letter-spacing:.04em}
+.rule-list{display:flex;flex-direction:column;gap:.6rem}
+.rule-item{display:flex;align-items:flex-start;gap:.65rem;font-size:.78rem;color:var(--mu);padding:.5rem 0;border-bottom:1px solid rgba(255,255,255,.03);line-height:1.5}
+.rule-item:last-child{border-bottom:none}
+.rule-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-top:.35rem}
+.rule-dot.gold{background:var(--gold)}
+.rule-dot.red{background:var(--red)}
+.rule-dot.blue{background:var(--blue)}
+.rule-dot.green{background:var(--em)}
+.odds-meter{margin-top:.5rem}
+.odds-label{display:flex;justify-content:space-between;margin-bottom:.5rem;font-size:.78rem}
+.odds-label span:first-child{color:var(--mu)}
+.odds-label span:last-child{font-family:var(--fd);font-size:1.1rem;color:var(--gold)}
+.odds-track{height:8px;background:var(--gb);border-radius:4px;overflow:hidden}
+.odds-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--gd),var(--gold));transition:width 1s cubic-bezier(.4,0,.2,1)}
+.odds-steps{display:flex;justify-content:space-between;margin-top:.4rem;font-size:.62rem;color:var(--fa)}
+
+
+/* ════════════════════════════════════════════
+   FEATURE 5 — DRAW VISUALIZATION
+════════════════════════════════════════════ */
+.draw-layout{display:grid;grid-template-columns:1fr 300px;gap:1.5rem;align-items:start}
+.draw-col{display:flex;flex-direction:column;gap:1.5rem}
+
+/* ── DRAW ARENA ── */
+.draw-arena{background:var(--bg2);border:1px solid var(--gb);border-radius:1.75rem;padding:2.5rem 2rem;position:relative;overflow:hidden;text-align:center}
+.draw-arena::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 70% 60% at 50% 0%,rgba(201,169,110,.05),transparent)}
+.draw-arena-title{font-family:var(--fd);font-size:1.6rem;margin-bottom:.3rem}
+.draw-arena-sub{font-size:.82rem;color:var(--mu);margin-bottom:2rem}
+.draw-mode-toggle{display:inline-flex;background:var(--fa2);border:1px solid var(--gb);border-radius:2rem;padding:3px;margin-bottom:2rem;gap:2px}
+.mode-btn{padding:.4rem 1.1rem;border-radius:2rem;border:none;background:transparent;color:var(--mu);font-family:var(--fb);font-size:.75rem;font-weight:500;cursor:pointer;transition:all .3s}
+.mode-btn.active{background:var(--gb2);color:var(--tx)}
+
+/* ── DRUM MACHINE ── */
+.drum-row{display:flex;justify-content:center;gap:.65rem;margin:1rem 0 1.5rem;flex-wrap:wrap}
+.drum{width:64px;height:80px;border-radius:1rem;background:var(--bg3);border:1.5px solid var(--gb2);display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;overflow:hidden;flex-shrink:0;transition:all .4s}
+.drum.rolling{border-color:rgba(201,169,110,.3);animation:drumPulse .15s ease-in-out infinite alternate}
+.drum.revealed{border-color:var(--gold)}
+.drum.matched{border-color:var(--gold);background:var(--gbg2);box-shadow:0 0 24px rgba(201,169,110,.25),inset 0 0 24px rgba(201,169,110,.08)}
+.drum.bonus-matched{border-color:var(--em);background:var(--embg2);box-shadow:0 0 24px rgba(29,181,132,.25)}
+@keyframes drumPulse{from{border-color:rgba(201,169,110,.2)}to{border-color:rgba(201,169,110,.5)}}
+.drum-tape{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:transform .08s linear}
+.drum-num{font-family:var(--fd);font-size:1.8rem;line-height:1;color:var(--tx);min-height:44px;display:flex;align-items:center;justify-content:center;width:100%}
+.drum.matched .drum-num{color:var(--gold)}
+.drum.bonus-matched .drum-num{color:var(--em)}
+.drum-label{font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:var(--mu);margin-top:.25rem;position:relative;z-index:1}
+.drum-shine{position:absolute;top:0;left:0;right:0;height:40%;background:linear-gradient(to bottom,rgba(255,255,255,.04),transparent);pointer-events:none}
+.drum-sep{width:1px;height:80px;background:var(--gb2);border-radius:1px;flex-shrink:0;align-self:center;margin:0 .15rem}
+
+/* draw controls */
+.draw-controls{display:flex;gap:.75rem;justify-content:center;flex-wrap:wrap}
+.draw-btn-main{padding:.85rem 2.2rem;border-radius:3rem;border:none;background:var(--gold);color:#05080F;font-family:var(--fb);font-size:.9rem;font-weight:700;cursor:pointer;transition:all .3s;display:flex;align-items:center;gap:.6rem;position:relative;overflow:hidden}
+.draw-btn-main:hover{background:var(--gl);transform:translateY(-2px);box-shadow:0 14px 40px rgba(201,169,110,.3)}
+.draw-btn-main:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.draw-btn-main::after{content:'';position:absolute;inset:0;background:rgba(255,255,255,0);transition:background .2s}
+.draw-btn-main:active::after{background:rgba(255,255,255,.1)}
+.draw-btn-reset{padding:.85rem 1.4rem;border-radius:3rem;border:1.5px solid var(--gb2);background:transparent;color:var(--mu);font-family:var(--fb);font-size:.82rem;cursor:pointer;transition:all .3s}
+.draw-btn-reset:hover{border-color:var(--gb3);color:var(--tx)}
+
+/* ── RESULT PANEL ── */
+.result-panel{display:none;margin-top:2rem;padding:1.5rem;background:var(--bg3);border:1px solid var(--gb);border-radius:1.25rem}
+.result-panel.show{display:block;animation:fadeSlide .5s both}
+.result-matches{display:flex;justify-content:center;gap:1.5rem;margin-bottom:1.25rem;flex-wrap:wrap}
+.match-stat{text-align:center}
+.match-num{font-family:var(--fd);font-size:2.5rem;line-height:1}
+.match-num.gold{color:var(--gold)}
+.match-num.green{color:var(--em)}
+.match-num.gray{color:var(--mu)}
+.match-label{font-size:.7rem;color:var(--mu);letter-spacing:.06em;text-transform:uppercase;margin-top:.15rem}
+.result-msg{font-family:var(--fd);font-size:1.3rem;text-align:center;margin-bottom:.75rem}
+.result-msg em{color:var(--gold)}
+.result-prize-row{display:flex;align-items:center;justify-content:center;gap:1rem;flex-wrap:wrap}
+.prize-badge{display:flex;align-items:center;gap:.4rem;padding:.45rem 1rem;border-radius:.6rem;font-size:.8rem;font-weight:600}
+.prize-badge.win{background:var(--gbg2);border:1px solid rgba(201,169,110,.25);color:var(--gold)}
+.prize-badge.nowin{background:var(--g);border:1px solid var(--gb);color:var(--mu)}
+.prize-badge.verify{background:var(--embg2);border:1px solid rgba(29,181,132,.2);color:var(--em)}
+.result-numbers{display:flex;justify-content:center;gap:.5rem;margin-top:1.25rem;flex-wrap:wrap}
+.r-ball{width:42px;height:42px;border-radius:50%;border:1.5px solid var(--gb2);display:flex;align-items:center;justify-content:center;font-family:var(--fd);font-size:1rem;color:var(--tx);transition:all .4s;background:var(--bg3)}
+.r-ball.match{border-color:var(--gold);background:var(--gbg2);color:var(--gold);box-shadow:0 0 16px rgba(201,169,110,.3);animation:ballGlow .8s ease-in-out both}
+.r-ball.bonus{border-color:var(--em);background:var(--embg2);color:var(--em);box-shadow:0 0 16px rgba(29,181,132,.3)}
+@keyframes ballGlow{0%{transform:scale(.7);opacity:0}60%{transform:scale(1.12)}100%{transform:scale(1);opacity:1}}
+
+/* ── DRAW SIDEBAR ── */
+.draw-sidebar{display:flex;flex-direction:column;gap:1.25rem}
+.my-numbers-card{background:var(--g);border:1px solid var(--gb);border-radius:1.5rem;padding:1.25rem}
+.my-nums-display{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.75rem}
+.my-num{width:38px;height:38px;border-radius:50%;border:1.5px solid var(--gb2);display:flex;align-items:center;justify-content:center;font-family:var(--fd);font-size:.95rem;color:var(--tx);background:var(--bg3);transition:all .35s}
+.my-num.hit{border-color:var(--gold);background:var(--gbg2);color:var(--gold);transform:scale(1.1)}
+.my-num.miss{opacity:.4}
+.prize-table{width:100%;border-collapse:collapse;font-size:.78rem}
+.prize-table th{font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--mu);padding:.4rem .5rem;text-align:left;border-bottom:1px solid var(--gb);font-weight:500}
+.prize-table td{padding:.55rem .5rem;border-bottom:1px solid rgba(255,255,255,.02);color:var(--tx)}
+.prize-table tr:hover td{background:rgba(255,255,255,.02)}
+.prize-table tr:last-child td{border-bottom:none}
+.pt-match{display:inline-flex;background:var(--gbg);color:var(--gold);padding:2px 7px;border-radius:.35rem;font-weight:600;font-size:.68rem}
+.pt-prize{font-weight:600;color:var(--gold)}
+.rollover-info{display:flex;align-items:flex-start;gap:.55rem;background:var(--blbg);border:1px solid rgba(45,139,222,.15);border-radius:.75rem;padding:.75rem .9rem;font-size:.75rem;color:var(--mu);line-height:1.5;margin-top:.25rem}
+.rollover-info svg{color:var(--blue);flex-shrink:0;margin-top:.1rem}
+.history-draws{display:flex;flex-direction:column;gap:.5rem}
+.draw-hist-row{display:flex;align-items:center;gap:.75rem;padding:.65rem .85rem;background:var(--bg3);border:1px solid var(--gb);border-radius:.9rem;transition:all .2s;cursor:default}
+.draw-hist-row:hover{border-color:var(--gb2)}
+.dhr-num{font-size:.72rem;color:var(--mu);width:52px;flex-shrink:0}
+.dhr-balls{display:flex;gap:.25rem;flex:1}
+.dhr-ball{width:24px;height:24px;border-radius:50%;border:1px solid var(--gb2);display:flex;align-items:center;justify-content:center;font-size:.6rem;font-family:var(--fd);color:var(--mu);background:var(--bg4)}
+.dhr-ball.m{border-color:rgba(201,169,110,.4);color:var(--gold);background:var(--gbg)}
+.dhr-result{font-size:.72rem;font-weight:600;text-align:right;min-width:40px;opacity: 1;}
+.dhr-result.win{color:var(--gold)}
+.dhr-result.loss{color:var(--fa)}
+
+/* ── TOAST ── */
+.toast-wrap{position:fixed;bottom:2rem;right:2rem;z-index:999;display:flex;flex-direction:column;gap:.55rem;pointer-events:none}
+.toast{display:flex;align-items:center;gap:.7rem;background:var(--bg2);border:1px solid var(--gb2);border-radius:1rem;padding:.8rem 1rem;font-size:.8rem;min-width:240px;transform:translateX(120%);transition:transform .4s cubic-bezier(.34,1.56,.64,1);pointer-events:all}
+.toast.show{transform:none}
+.t-ic{width:22px;height:22px;border-radius:.4rem;display:flex;align-items:center;justify-content:center;font-size:.72rem;flex-shrink:0}
+.t-ic.gold{background:var(--gbg2);color:var(--gold)}
+.t-ic.green{background:var(--embg2);color:var(--em)}
+.t-ic.red{background:var(--rdbg);color:var(--red)}
+.t-ic.blue{background:var(--blbg2);color:var(--blue)}
+.t-msg{flex:1;color:var(--tx)}
+.t-x{background:none;border:none;color:var(--fa);cursor:pointer;font-size:.9rem;padding:.1rem .3rem;transition:color .2s}
+.t-x:hover{color:var(--mu)}
+
+@media(max-width:1100px){.score-layout,.draw-layout{grid-template-columns:1fr}}
+@media(max-width:768px){.sidebar{display:none}.main{margin-left:0}.topbar{padding:0 1rem}.drum{width:52px;height:68px}.drum-num{font-size:1.4rem}}
+</style>
+</head>
+<body>
+
+<!-- ━━ TOPBAR ━━ -->
+<div class="topbar">
+  <a href="dashboard.html" class="topbar-logo">Draw<span>Vault</span></a>
+  <div class="topbar-breadcrumb">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+    <span id="breadcrumb-label">Score Entry</span>
+  </div>
+  <div class="topbar-right">
+    <div class="tab-switcher">
+      <button class="tab-btn active" onclick="switchTab('scores',this)">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="display:inline;vertical-align:middle;margin-right:4px"><path d="M12 20V10M18 20V4M6 20v-4"/></svg>
+        Score Entry
+      </button>
+      <button class="tab-btn" onclick="switchTab('draw',this)">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="display:inline;vertical-align:middle;margin-right:4px"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+        Draw Visualizer
+      </button>
+    </div>
+    <div class="topbar-avatar">JD</div>
+  </div>
+</div>
+
+<!-- ━━ SIDEBAR ━━ -->
+<div class="sidebar">
+  <p class="sidebar-label">Navigation</p>
+  <a href="dashboard.html" class="nav-item" style="text-decoration:none; opacity: 1">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+    Dashboard
+  </a>
+  <div class="nav-item active" style=" opacity: 1"onclick="switchTab('scores',document.querySelector('.tab-btn'))">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20V10M18 20V4M6 20v-4"/></svg>
+    My Scores
+  </div>
+  <div class="nav-item" style=" opacity: 1"onclick="switchTab('draw',document.querySelectorAll('.tab-btn')[1])">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+    Draw Visualizer
+  </div>
+  <a href="results-verify.html" class="nav-item" style="text-decoration:none; opacity: 1">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/></svg>
+    Results & Verify
+  </a>
+  <a href="charity.html" class="nav-item" style="text-decoration:none; opacity: 1">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+    Charity Centre
+  </a>
+  <p class="sidebar-label">Account</p>
+  <a href="admin.html" class="nav-item" style="text-decoration:none; opacity: 1">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+    Admin Panel
+  </a>
+  <a href="subscription.html" class="nav-item" style="text-decoration:none; opacity: 1">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+    Subscription
+  </a>
+  <div class="sidebar-bottom">
+    <div class="sub-badge">
+      <div class="sub-badge-status"><span class="live-dot"></span>ACTIVE</div>
+      <div class="sub-badge-plan">DrawVault Pro</div>
+      <div class="sub-badge-renew">Renews May 21, 2025</div>
+    </div>
+  </div>
+</div>
+
+<!-- ━━━━━━━━━━━━━━━━ MAIN ━━━━━━━━━━━━━━━━ -->
+<div class="main">
+
+<!-- ════════════ SECTION: SCORE ENTRY ════════════ -->
+<div class="section active" id="sec-scores">
+  <div class="page-hdr">
+    <div class="page-hdr-left">
+      <p class="page-eyebrow">Feature 4 — Score Management</p>
+      <h1 class="page-title">Your <em>Score Ledger</em></h1>
+      <p class="page-sub">Up to 5 scores per draw cycle. Newest replaces oldest when full. No duplicate dates.</p>
+    </div>
+    <div class="page-hdr-actions">
+      <button class="btn-ghost" onclick="clearAllScores()">Clear All</button>
+      <button class="btn-primary" onclick="focusForm()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Add Score
+      </button>
+    </div>
+  </div>
+
+  <div class="score-layout">
+    <div class="score-col">
+
+      <!-- SCORE FORM -->
+      <div class="card">
+        <div class="card-hdr">
+          <div class="card-title-row">
+            <div class="card-ic gold"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+            <div><div class="card-ttl">Add New Score</div><div class="card-sub">Duplicate dates are blocked automatically</div></div>
+          </div>
+        </div>
+        <div class="score-form">
+          <div class="f-group">
+            <label class="f-label">Score value</label>
+            <input class="f-input" type="number" id="f-score" placeholder="e.g. 72" min="1" max="200" step="1"/>
+          </div>
+          <div class="f-group">
+            <label class="f-label">Date played</label>
+            <input class="f-input" type="date" id="f-date"/>
+          </div>
+          <button class="f-submit" onclick="addScore()">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Add
+          </button>
+        </div>
+        <div class="f-err" id="f-err">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>
+          <span id="f-err-txt"></span>
+        </div>
+      </div>
+
+      <!-- SCORE SLOTS -->
+      <div class="card">
+        <div class="card-hdr">
+          <div class="card-title-row">
+            <div class="card-ic gold"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 20V10M18 20V4M6 20v-4"/></svg></div>
+            <div><div class="card-ttl">Active Slots</div><div class="card-sub" id="slot-subtitle">3 of 5 slots filled</div></div>
+          </div>
+          <div style="font-size:.75rem;color:var(--mu)" id="slot-counter">3 / 5</div>
+        </div>
+        <div class="slot-grid" id="slot-grid"></div>
+        <div class="slot-cap">
+          <span>Slots used this draw cycle</span>
+          <span id="slot-cap-right">2 remaining</span>
+        </div>
+        <div class="odds-meter" style="margin-top:1rem">
+          <div class="odds-label">
+            <span>Draw odds boost</span>
+            <span id="odds-val">68%</span>
+          </div>
+          <div class="odds-track"><div class="odds-fill" id="odds-fill"></div></div>
+          <div class="odds-steps"><span>0 scores</span><span>2 scores</span><span>4 scores</span><span>5 scores</span></div>
+        </div>
+      </div>
+
+      <!-- SCORE CHART -->
+      <div class="card">
+        <div class="card-hdr">
+          <div class="card-title-row">
+            <div class="card-ic blue"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+            <div><div class="card-ttl">Score Trend</div><div class="card-sub">All 5 most recent entries</div></div>
+          </div>
+        </div>
+        <div class="chart-wrap">
+          <svg class="chart-svg" id="chart-svg" viewBox="0 0 500 160" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="chartGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#9A7A4A"/>
+                <stop offset="100%" stop-color="#C9A96E"/>
+              </linearGradient>
+              <linearGradient id="areaGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#C9A96E" stop-opacity=".4"/>
+                <stop offset="100%" stop-color="#C9A96E" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+            <path class="chart-area" id="chart-area" d=""/>
+            <path class="chart-line" id="chart-line" d=""/>
+            <g id="chart-dots"></g>
+          </svg>
+          <div class="chart-tooltip" id="chart-tooltip"></div>
+        </div>
+        <div class="chart-x-labels" id="chart-labels"></div>
+      </div>
+
+      <!-- SCORE HISTORY TABLE -->
+      <div class="card">
+        <div class="card-hdr">
+          <div class="card-title-row">
+            <div class="card-ic blue"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg></div>
+            <div><div class="card-ttl">Full Score History</div><div class="card-sub">All entries this draw cycle</div></div>
+          </div>
+        </div>
+        <table class="history-table">
+          <thead><tr><th>#</th><th>Score</th><th>Date</th><th>Status</th><th>Action</th></tr></thead>
+          <tbody id="history-tbody"></tbody>
+        </table>
+      </div>
+
+    </div><!-- /score-col -->
+
+    <!-- SCORE SIDEBAR -->
+    <div class="score-sidebar">
+      <div class="card">
+        <div class="card-hdr"><div class="card-title-row"><div class="card-ic gold"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/></svg></div><div class="card-ttl">Statistics</div></div></div>
+        <div class="stat-mini">
+          <div class="stat-m"><div class="stat-m-num gold" id="s-best">—</div><div class="stat-m-label">Best score</div></div>
+          <div class="stat-m"><div class="stat-m-num green" id="s-avg">—</div><div class="stat-m-label">Average</div></div>
+          <div class="stat-m"><div class="stat-m-num" id="s-latest" style="color:var(--blue)">—</div><div class="stat-m-label">Latest</div></div>
+          <div class="stat-m"><div class="stat-m-num" id="s-count" style="color:var(--tx)">0/5</div><div class="stat-m-label">Slots used</div></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-hdr"><div class="card-title-row"><div class="card-ic blue"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg></div><div class="card-ttl">Score Rules</div></div></div>
+        <div class="rule-list">
+          <div class="rule-item"><span class="rule-dot gold"></span>Maximum 5 active scores per draw cycle</div>
+          <div class="rule-item"><span class="rule-dot red"></span>No two scores can share the same date</div>
+          <div class="rule-item"><span class="rule-dot blue"></span>New score replaces the oldest when all 5 slots are full</div>
+          <div class="rule-item"><span class="rule-dot green"></span>Lower score = better performance (like golf scoring)</div>
+          <div class="rule-item"><span class="rule-dot gold"></span>More scores = higher algorithm-mode draw boost</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-hdr"><div class="card-title-row"><div class="card-ic green"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div><div class="card-ttl">Draw Readiness</div></div></div>
+        <div style="font-size:.78rem;color:var(--mu);margin-bottom:.75rem">Scores entered this cycle contribute to your draw entry weight in algorithm mode.</div>
+        <div style="display:flex;flex-direction:column;gap:.5rem">
+          <div style="display:flex;justify-content:space-between;font-size:.8rem"><span style="color:var(--mu)">Scores logged</span><span id="ready-scores" style="font-weight:600">3 / 5</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:.8rem"><span style="color:var(--mu)">Mode</span><span style="color:var(--blue);font-weight:600">Algorithm</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:.8rem"><span style="color:var(--mu)">Odds boost</span><span id="ready-odds" style="color:var(--gold);font-weight:600">68%</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:.8rem"><span style="color:var(--mu)">Status</span><span style="color:var(--em);font-weight:600">✓ Entered</span></div>
+        </div>
+        <button style="width:100%;margin-top:1rem;padding:.7rem;border-radius:2rem;border:1.5px solid var(--gold);background:transparent;color:var(--gold);font-family:var(--fb);font-size:.8rem;font-weight:600;cursor:pointer;transition:all .3s" onclick="switchTab('draw',document.querySelectorAll('.tab-btn')[1])">
+          Go to Draw Visualizer →
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div><!-- /sec-scores -->
+
+
+<!-- ════════════ SECTION: DRAW VISUALIZER ════════════ -->
+<div class="section" id="sec-draw">
+  <div class="page-hdr">
+    <div class="page-hdr-left">
+      <p class="page-eyebrow">Feature 5 — Draw Visualization</p>
+      <h1 class="page-title">Monthly <em>Draw Engine</em></h1>
+      <p class="page-sub">Watch the draw unfold in real-time. Switch between random and algorithm modes.</p>
+    </div>
+    <div class="page-hdr-actions">
+      <button class="btn-ghost" onclick="resetDraw()">Reset Draw</button>
+    </div>
+  </div>
+
+  <div class="draw-layout">
+    <div class="draw-col">
+
+      <!-- DRAW ARENA -->
+      <div class="draw-arena">
+        <h2 class="draw-arena-title">Draw #12 — May 2025</h2>
+        <p class="draw-arena-sub">Six numbers drawn. Match 3, 4, or 5 to win a prize tier.</p>
+
+        <div class="draw-mode-toggle">
+          <button class="mode-btn active" id="mode-random" onclick="setDrawMode('random')">
+            🎲 Random Draw
+          </button>
+          <button class="mode-btn" id="mode-algo" onclick="setDrawMode('algo')">
+            ⚡ Algorithm Mode
+          </button>
+        </div>
+
+        <!-- DRUM MACHINE -->
+        <div class="drum-row" id="drum-row">
+          <div class="drum" id="d0"><div class="drum-shine"></div><div class="drum-tape"><div class="drum-num">?</div></div><div class="drum-label"></div></div>
+          <div class="drum" id="d1"><div class="drum-shine"></div><div class="drum-tape"><div class="drum-num">?</div></div><div class="drum-label"></div></div>
+          <div class="drum" id="d2"><div class="drum-shine"></div><div class="drum-tape"><div class="drum-num">?</div></div><div class="drum-label"></div></div>
+          <div class="drum" id="d3"><div class="drum-shine"></div><div class="drum-tape"><div class="drum-num">?</div></div><div class="drum-label"></div></div>
+          <div class="drum" id="d4"><div class="drum-shine"></div><div class="drum-tape"><div class="drum-num">?</div></div><div class="drum-label"></div></div>
+          <div class="drum-sep"></div>
+          <div class="drum" id="d5"><div class="drum-shine"></div><div class="drum-tape"><div class="drum-num">?</div></div><div class="drum-label"></div></div>
+        </div>
+
+        <div class="draw-controls">
+          <button class="draw-btn-main" id="draw-btn" onclick="startDraw()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5,3 19,12 5,21"/></svg>
+            <span id="draw-btn-text">Run Draw</span>
+          </button>
+          <button class="draw-btn-reset" onclick="resetDraw()">↺ Reset</button>
+        </div>
+
+        <!-- RESULT PANEL -->
+        <div class="result-panel" id="result-panel">
+          <div class="result-matches">
+            <div class="match-stat"><div class="match-num gold" id="r-main-match">0</div><div class="match-label">Main matches</div></div>
+            <div class="match-stat"><div class="match-num green" id="r-bonus-match">0</div><div class="match-label">Bonus match</div></div>
+            <div class="match-stat"><div class="match-num gray" id="r-prize-tier">—</div><div class="match-label">Prize tier</div></div>
+          </div>
+          <div class="result-msg" id="result-msg"></div>
+          <div class="result-prize-row" id="result-prize-row"></div>
+          <div style="margin-top:1rem;font-size:.75rem;color:var(--mu);text-align:center">Your numbers vs drawn numbers:</div>
+          <div class="result-numbers" id="result-numbers"></div>
+        </div>
+      </div>
+
+      <!-- PAST DRAWS HISTORY -->
+      <div class="card">
+        <div class="card-hdr">
+          <div class="card-title-row">
+            <div class="card-ic blue"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg></div>
+            <div><div class="card-ttl">Draw History</div><div class="card-sub">Last 5 monthly draws</div></div>
+          </div>
+        </div>
+        <div class="history-draws" id="draw-history-list"></div>
+      </div>
+
+    </div><!-- /draw-col -->
+
+    <!-- DRAW SIDEBAR -->
+    <div class="draw-sidebar">
+
+      <div class="my-numbers-card">
+        <div class="card-hdr" style="margin-bottom:0">
+          <div class="card-title-row">
+            <div class="card-ic gold"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><path d="M8 12l2 2 4-4"/></svg></div>
+            <div><div class="card-ttl">Your Numbers</div><div class="card-sub">Generated from scores</div></div>
+          </div>
+        </div>
+        <div class="my-nums-display" id="my-nums-display"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-hdr"><div class="card-title-row"><div class="card-ic gold"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></div><div class="card-ttl">Prize Breakdown</div></div></div>
+        <table class="prize-table">
+          <thead><tr><th>Match</th><th>Pool share</th><th>Est. prize</th></tr></thead>
+          <tbody>
+            <tr><td><span class="pt-match">5 match</span></td><td>40%</td><td class="pt-prize">$4,800</td></tr>
+            <tr><td><span class="pt-match">4 match</span></td><td>35%</td><td class="pt-prize">$840</td></tr>
+            <tr><td><span class="pt-match">3 match</span></td><td>25%</td><td class="pt-prize">$60</td></tr>
+          </tbody>
+        </table>
+        <div class="rollover-info" style="margin-top:.9rem">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+          <span>5-match prize rolls over to next month if no winner is found.</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-hdr"><div class="card-title-row"><div class="card-ic blue"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div><div class="card-ttl">Algorithm Mode</div></div></div>
+        <div style="font-size:.78rem;color:var(--mu);line-height:1.6;margin-bottom:.75rem">In algorithm mode, your score frequency and recency influence your number pool. Better scores skew your numbers toward historically winning ranges.</div>
+        <div style="display:flex;flex-direction:column;gap:.45rem;font-size:.78rem">
+          <div style="display:flex;justify-content:space-between"><span style="color:var(--mu)">Scores contributing</span><span style="color:var(--gold)" id="algo-score-count">3 / 5</span></div>
+          <div style="display:flex;justify-content:space-between"><span style="color:var(--mu)">Weight multiplier</span><span style="color:var(--gold)" id="algo-weight">1.68×</span></div>
+          <div style="display:flex;justify-content:space-between"><span style="color:var(--mu)">Number bias</span><span style="color:var(--blue)">Low-range skew</span></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div><!-- /sec-draw -->
+
+</div><!-- /main -->
+
+<!-- TOAST -->
+<div class="toast-wrap" id="toast-wrap"></div>
+
+<script>
+gsap.registerPlugin(ScrollTrigger);
+
+/* ═══════════════════════════════════
+   STATE
+═══════════════════════════════════ */
+const MAX = 5;
+let scores = [
+  {id:1,score:72,date:'2025-04-18'},
+  {id:2,score:68,date:'2025-04-14'},
+  {id:3,score:75,date:'2025-04-09'},
+];
+let nextId = 4;
+let drawMode = 'random';
+let drawRunning = false;
+let drawDone = false;
+let myNumbers = [7,14,22,31,38,42];
+let drawnNumbers = [];
+
+const DRAW_HISTORY = [
+  {num:'#11',balls:[4,12,22,31,38],bonus:9,matches:2,won:false,prize:null},
+  {num:'#10',balls:[7,14,22,36,44],bonus:42,matches:4,won:true,prize:'$280'},
+  {num:'#9', balls:[3,19,27,33,41],bonus:15,matches:1,won:false,prize:null},
+  {num:'#8', balls:[7,22,29,38,45],bonus:14,matches:3,won:true,prize:'$60'},
+  {num:'#7', balls:[11,14,25,39,42],bonus:6,matches:2,won:false,prize:null},
+];
+
+/* ═══════════════════════════════════
+   TAB SWITCHER
+═══════════════════════════════════ */
+function switchTab(tab, btn){
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.getElementById('sec-'+tab).classList.add('active');
+  document.getElementById('breadcrumb-label').textContent = tab==='scores'?'Score Entry':'Draw Visualizer';
+  if(tab==='scores') renderAll();
+  if(tab==='draw'){renderDrawHistory();renderMyNumbers();}
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+/* ═══════════════════════════════════
+   SCORE LOGIC
+═══════════════════════════════════ */
+function addScore(){
+  const val=parseInt(document.getElementById('f-score').value);
+  const date=document.getElementById('f-date').value;
+  const err=document.getElementById('f-err');
+  const errTxt=document.getElementById('f-err-txt');
+  err.classList.remove('show');
+
+  if(!val||val<1||val>200){errTxt.textContent='Enter a valid score between 1 and 200.';err.classList.add('show');return;}
+  if(!date){errTxt.textContent='Please select the date you played.';err.classList.add('show');return;}
+  if(scores.some(s=>s.date===date)){errTxt.textContent='A score already exists for this date. Each date allows one entry only.';err.classList.add('show');return;}
+
+  let replaced=null;
+  if(scores.length>=MAX){
+    const sorted=[...scores].sort((a,b)=>new Date(a.date)-new Date(b.date));
+    replaced=sorted[0];
+    scores=scores.filter(s=>s.id!==replaced.id);
+    toast(`Oldest score (${replaced.score}) was replaced by your new entry`,'gold','↺');
+  } else {
+    toast(`Score ${val} added to your draw entry`,'green','✓');
+  }
+  scores.push({id:nextId++,score:val,date});
+  document.getElementById('f-score').value='';
+  renderAll();
+}
+
+function deleteScore(id){
+  const s=scores.find(x=>x.id===id);
+  const el=document.getElementById('ss-'+id);
+  if(el){el.classList.add('anim-out');setTimeout(()=>{scores=scores.filter(x=>x.id!==id);renderAll();},300);}
+  toast(`Score ${s.score} removed`,'red','✕');
+}
+
+function clearAllScores(){
+  if(!scores.length)return;
+  scores=[];renderAll();toast('All scores cleared','red','✕');
+}
+
+function focusForm(){
+  document.getElementById('f-score').focus();
+  gsap.from('#f-score',{borderColor:'var(--gold)',duration:.5,ease:'power2.out'});
+}
+
+/* ═══════════════════════════════════
+   RENDER SCORES
+═══════════════════════════════════ */
+function renderAll(){
+  renderSlots();renderChart();renderHistory();renderStats();renderOdds();
+}
+
+function renderSlots(){
+  const sorted=[...scores].sort((a,b)=>new Date(b.date)-new Date(a.date));
+  const best=sorted.reduce((m,s)=>s.score<m?s.score:m,Infinity);
+  const grid=document.getElementById('slot-grid');
+  let html='';
+  for(let i=0;i<MAX;i++){
+    const s=sorted[i];
+    if(s){
+      const pct=Math.min(Math.round((s.score/100)*100),100);
+      const rankClass=i===0?'r1':i===1?'r2':i===2?'r3':i===3?'r4':'r5';
+      const rankLbl='#'+(i+1);
+      const slotClass=i===0?'rank1':i===1?'rank2':'rank3';
+      html+=`<div class="score-slot ${slotClass} anim-in" id="ss-${s.id}">
+        ${i===0?'<div class="newest-tag">Latest</div>':''}
+        <div class="s-rank ${rankClass}">${rankLbl}</div>
+        <div class="s-info"><div class="s-score">${s.score}</div><div class="s-date">${fmtDate(s.date)}</div></div>
+        <div class="s-bar-col"><div class="s-pct">${pct}%</div><div class="s-bar"><div class="s-bar-fill" data-w="${pct}%"></div></div></div>
+        <button class="s-del" onclick="deleteScore(${s.id})" title="Remove">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>`;
+    } else {
+      html+=`<div class="score-slot empty">
+        <div class="s-rank re">—</div>
+        <div class="s-info"><div class="s-score" style="font-size:.9rem;color:var(--fa)">Empty slot</div><div class="s-date">No score entered</div></div>
+      </div>`;
+    }
+  }
+  grid.innerHTML=html;
+  setTimeout(()=>{document.querySelectorAll('.s-bar-fill').forEach(b=>gsap.to(b,{width:b.dataset.w,duration:.9,ease:'power3.out',delay:.05}));},50);
+  document.getElementById('slot-subtitle').textContent=`${scores.length} of 5 slots filled`;
+  document.getElementById('slot-counter').textContent=`${scores.length} / 5`;
+  document.getElementById('slot-cap-right').textContent=`${MAX-scores.length} remaining`;
+  document.getElementById('s-count').textContent=`${scores.length}/5`;
+  document.getElementById('ready-scores').textContent=`${scores.length} / 5`;
+  // update algo sidebar
+  document.getElementById('algo-score-count').textContent=`${scores.length} / 5`;
+  document.getElementById('algo-weight').textContent=(1+scores.length*.136).toFixed(2)+'×';
+}
+
+function renderStats(){
+  if(!scores.length){
+    ['s-best','s-avg','s-latest'].forEach(id=>document.getElementById(id).textContent='—');
+    return;
+  }
+  const vals=scores.map(s=>s.score);
+  document.getElementById('s-best').textContent=Math.min(...vals);
+  document.getElementById('s-avg').textContent=Math.round(vals.reduce((a,b)=>a+b,0)/vals.length);
+  const latest=[...scores].sort((a,b)=>new Date(b.date)-new Date(a.date))[0];
+  document.getElementById('s-latest').textContent=latest.score;
+}
+
+function renderOdds(){
+  const pct=Math.round((scores.length/MAX)*100);
+  const boost=40+scores.length*12;
+  document.getElementById('odds-val').textContent=boost+'%';
+  document.getElementById('ready-odds').textContent=boost+'%';
+  gsap.to('#odds-fill',{width:Math.min(boost,100)+'%',duration:.8,ease:'power2.out'});
+}
+
+function renderHistory(){
+  const sorted=[...scores].sort((a,b)=>new Date(b.date)-new Date(a.date));
+  const best=sorted.length?Math.min(...sorted.map(s=>s.score)):null;
+  const tbody=document.getElementById('history-tbody');
+  if(!sorted.length){tbody.innerHTML=`<tr><td colspan="5" style="text-align:center;color:var(--fa);padding:1.5rem">No scores yet — add one above</td></tr>`;return;}
+  tbody.innerHTML=sorted.map((s,i)=>{
+    const isBest=s.score===best;
+    const badge=i===0?'<span class="ht-badge active">Active</span>':isBest?'<span class="ht-badge best">Best</span>':'<span class="ht-badge replaced">Logged</span>';
+    return `<tr>
+      <td style="color:var(--mu)">${i+1}</td>
+      <td><span class="ht-score">${s.score}</span></td>
+      <td style="color:var(--mu)">${fmtDate(s.date)}</td>
+      <td>${badge}</td>
+      <td><button onclick="deleteScore(${s.id})" style="background:none;border:none;color:var(--fa);cursor:pointer;font-size:.75rem;transition:color .2s;font-family:var(--fb)" onmouseover="this.style.color='var(--red)'" onmouseout="this.style.color='var(--fa)'">Remove</button></td>
+    </tr>`;
+  }).join('');
+}
+
+function renderChart(){
+  const sorted=[...scores].sort((a,b)=>new Date(a.date)-new Date(b.date));
+  const svg=document.getElementById('chart-svg');
+  const lineEl=document.getElementById('chart-line');
+  const areaEl=document.getElementById('chart-area');
+  const dotsEl=document.getElementById('chart-dots');
+  const labelsEl=document.getElementById('chart-labels');
+
+  if(sorted.length<2){
+    lineEl.setAttribute('d','');areaEl.setAttribute('d','');dotsEl.innerHTML='';
+    labelsEl.innerHTML='<span style="color:var(--fa);font-size:.75rem">Add at least 2 scores to see the trend</span>';
+    return;
+  }
+  const W=500,H=160,PAD=20;
+  const vals=sorted.map(s=>s.score);
+  const minV=Math.min(...vals)-5,maxV=Math.max(...vals)+5;
+  const pts=sorted.map((s,i)=>{
+    const x=PAD+(i/(sorted.length-1))*(W-PAD*2);
+    const y=PAD+(s.score-minV)/(maxV-minV)*(H-PAD*2);
+    return {x,y,score:s.score,date:s.date};
+  });
+  const line=pts.map((p,i)=>(i===0?`M${p.x},${p.y}`:`C${(pts[i-1].x+p.x)/2},${pts[i-1].y} ${(pts[i-1].x+p.x)/2},${p.y} ${p.x},${p.y}`)).join(' ');
+  lineEl.setAttribute('d',line);
+  const area=line+` L${pts[pts.length-1].x},${H} L${pts[0].x},${H} Z`;
+  areaEl.setAttribute('d',area);
+  // dots
+  dotsEl.innerHTML=pts.map((p,i)=>`<circle class="chart-dot" cx="${p.x}" cy="${p.y}" r="4" data-score="${p.score}" data-date="${p.date}" onmouseenter="showTip(event,${p.score},'${p.date}')" onmouseleave="hideTip()"/>`).join('');
+  // labels
+  labelsEl.innerHTML=sorted.map(s=>`<span>${fmtShortDate(s.date)}</span>`).join('');
+  // animate line
+  const len=lineEl.getTotalLength();
+  gsap.fromTo(lineEl,{strokeDasharray:len,strokeDashoffset:len},{strokeDashoffset:0,duration:1.2,ease:'power3.out'});
+  gsap.from(dotsEl.querySelectorAll('circle'),{scale:0,transformOrigin:'center',stagger:.1,duration:.4,ease:'back.out(2)',delay:.3});
+}
+
+function showTip(e,score,date){
+  const t=document.getElementById('chart-tooltip');
+  t.textContent=`Score: ${score} · ${fmtDate(date)}`;
+  const r=document.getElementById('chart-svg').getBoundingClientRect();
+  const wrap=document.querySelector('.chart-wrap').getBoundingClientRect();
+  t.style.left=(e.clientX-wrap.left+10)+'px';
+  t.style.top=(e.clientY-wrap.top-30)+'px';
+  t.classList.add('show');
+}
+function hideTip(){document.getElementById('chart-tooltip').classList.remove('show');}
+
+/* ═══════════════════════════════════
+   DRAW ENGINE
+═══════════════════════════════════ */
+function setDrawMode(m){
+  drawMode=m;
+  document.getElementById('mode-random').classList.toggle('active',m==='random');
+  document.getElementById('mode-algo').classList.toggle('active',m==='algo');
+  if(drawDone)resetDraw();
+}
+
+function generateNumbers(mode){
+  const pool=Array.from({length:49},(_,i)=>i+1);
+  if(mode==='random'){
+    const shuffled=[...pool].sort(()=>Math.random()-.5);
+    return shuffled.slice(0,6).sort((a,b)=>a-b);
+  }
+  // algorithm: bias toward lower numbers if scores are good (low)
+  const avgScore=scores.length?scores.reduce((s,x)=>s+x.score,0)/scores.length:72;
+  const bias=Math.max(0.2,(100-avgScore)/100);
+  const weighted=pool.map(n=>({n,w:n<=25?1+bias:1-bias*0.5}));
+  const total=weighted.reduce((s,x)=>s+x.w,0);
+  const picked=[];
+  while(picked.length<6){
+    let r=Math.random()*total,cum=0;
+    for(const {n,w} of weighted){
+      cum+=w;
+      if(r<=cum&&!picked.includes(n)){picked.push(n);break;}
+    }
+  }
+  return picked.sort((a,b)=>a-b);
+}
+
+function startDraw(){
+  if(drawRunning||drawDone)return;
+  drawRunning=true;
+  const btn=document.getElementById('draw-btn');
+  btn.disabled=true;
+  document.getElementById('draw-btn-text').textContent='Drawing…';
+  document.getElementById('result-panel').classList.remove('show');
+
+  drawnNumbers=generateNumbers(drawMode);
+  const drums=[0,1,2,3,4,5].map(i=>document.getElementById('d'+i));
+
+  // reset all drums
+  drums.forEach(d=>{
+    d.classList.remove('revealed','matched','bonus-matched','rolling');
+    d.querySelector('.drum-num').textContent='?';
+  });
+
+  // Roll all simultaneously first, then reveal one by one
+  drums.forEach(d=>d.classList.add('rolling'));
+
+  const rollIntervals=drums.map(d=>{
+    let t=setInterval(()=>{
+      d.querySelector('.drum-num').textContent=Math.floor(Math.random()*49)+1;
+    },80);
+    return t;
+  });
+
+  // Reveal one by one with stagger
+  drawnNumbers.forEach((num,i)=>{
+    const delay=1200+(i*700);
+    setTimeout(()=>{
+      clearInterval(rollIntervals[i]);
+      const drum=drums[i];
+      drum.classList.remove('rolling');
+
+      // fast-stop roll then land
+      let count=0,fastRoll=setInterval(()=>{
+        drum.querySelector('.drum-num').textContent=Math.floor(Math.random()*49)+1;
+        if(++count>6){
+          clearInterval(fastRoll);
+          drum.querySelector('.drum-num').textContent=num;
+          drum.classList.add('revealed');
+          const isBonus=i===5;
+          const matched=myNumbers.includes(num);
+          if(matched&&isBonus)drum.classList.add('bonus-matched');
+          else if(matched)drum.classList.add('matched');
+          gsap.fromTo(drum,{scale:.85},{scale:1,duration:.45,ease:'back.out(2.5)'});
+          // glow burst
+          if(matched){
+            gsap.to(drum,{boxShadow:`0 0 40px rgba(201,169,110,.5)`,duration:.3,yoyo:true,repeat:1,ease:'power2.out'});
+          }
+        }
+      },60);
+
+      // final item
+      if(i===5){
+        setTimeout(()=>{
+          drawRunning=false;drawDone=true;
+          document.getElementById('draw-btn-text').textContent='Draw Complete';
+          showResults();
+        },900);
+      }
+    },delay);
+  });
+}
+
+function showResults(){
+  const mainDrawn=drawnNumbers.slice(0,5);
+  const bonusDrawn=drawnNumbers[5];
+  const mainMatches=myNumbers.slice(0,5).filter(n=>mainDrawn.includes(n)).length;
+  const bonusMatch=myNumbers.includes(bonusDrawn)?1:0;
+
+  document.getElementById('r-main-match').textContent=mainMatches;
+  document.getElementById('r-bonus-match').textContent=bonusMatch;
+
+  let tier='—',msg='',prizes=[];
+  if(mainMatches>=5){tier='5 Match';msg='<em>Jackpot! You matched all 5 main numbers!</em>';prizes=[{cls:'win',text:'Win: 40% of prize pool (~$4,800)'},{cls:'verify',text:'Verify your win ↗'}];}
+  else if(mainMatches===4){tier='4 Match';msg='<em>Outstanding! 4 main numbers matched!</em>';prizes=[{cls:'win',text:'Win: 35% of pool (~$840)'},{cls:'verify',text:'Verify your win ↗'}];}
+  else if(mainMatches===3){tier='3 Match';msg='<em>Nice! You matched 3 main numbers!</em>';prizes=[{cls:'win',text:'Win: 25% of pool (~$60)'},{cls:'verify',text:'Claim prize ↗'}];}
+  else{tier='No match';msg='No prize this draw. Keep going — next draw is in 28 days.';prizes=[{cls:'nowin',text:'Better luck next month'},{cls:'nowin',text:'Scores carry over'}];}
+
+  document.getElementById('r-prize-tier').textContent=tier;
+  document.getElementById('result-msg').innerHTML=msg;
+  document.getElementById('result-prize-row').innerHTML=prizes.map(p=>`<div class="prize-badge ${p.cls}">${p.text}</div>`).join('');
+
+  // side-by-side numbers comparison
+  const rn=document.getElementById('result-numbers');
+  rn.innerHTML=myNumbers.map((n,i)=>{
+    const isBonus=i===5;
+    const matched=drawnNumbers.slice(0,5).includes(n)&&!isBonus||isBonus&&drawnNumbers[5]===n;
+    return `<div class="r-ball${matched?isBonus?' bonus':' match':''}" style="animation-delay:${i*80}ms">${n}</div>`;
+  }).join('');
+
+  const panel=document.getElementById('result-panel');
+  panel.classList.add('show');
+  gsap.from(panel,{y:20,opacity:0,duration:.6,ease:'power3.out'});
+
+  // update my-numbers highlight
+  renderMyNumbers(drawnNumbers);
+  if(mainMatches>=3) toast(`🏆 You matched ${mainMatches} numbers! Claim your prize.`,'gold','★');
+  else toast(`Draw complete — ${mainMatches} matches this round`,'blue','◎');
+}
+
+function resetDraw(){
+  drawDone=false;drawRunning=false;drawnNumbers=[];
+  const drums=[0,1,2,3,4,5].map(i=>document.getElementById('d'+i));
+  drums.forEach(d=>{
+    d.classList.remove('revealed','matched','bonus-matched','rolling');
+    d.querySelector('.drum-num').textContent='?';
+    gsap.fromTo(d,{opacity:.5},{opacity:1,duration:.4});
+  });
+  document.getElementById('draw-btn').disabled=false;
+  document.getElementById('draw-btn-text').textContent='Run Draw';
+  document.getElementById('result-panel').classList.remove('show');
+  renderMyNumbers([]);
+}
+
+function renderMyNumbers(hits=[]){
+  const container=document.getElementById('my-nums-display');
+  container.innerHTML=myNumbers.map(n=>{
+    const hit=hits.includes(n);
+    const miss=hits.length&&!hit;
+    return `<div class="my-num${hit?' hit':''}${miss?' miss':''}">${n}</div>`;
+  }).join('');
+  if(hits.length){
+    gsap.from('#my-nums-display .my-num.hit',{scale:.7,opacity:0,stagger:.05,duration:.4,ease:'back.out(2)',delay:.1});
+  }
+}
+
+function renderDrawHistory(){
+  const c=document.getElementById('draw-history-list');
+  c.innerHTML=DRAW_HISTORY.map(d=>{
+    const ballsHtml=d.balls.map((b,i)=>{
+      const m=myNumbers.includes(b);
+      return `<div class="dhr-ball${m?' m':''}">${b}</div>`;
+    }).join('')+`<div style="width:8px;flex-shrink:0"></div><div class="dhr-ball${myNumbers.includes(d.bonus)?' m':''}">${d.bonus}</div>`;
+    return `<div class="draw-hist-row">
+      <div class="dhr-num">Draw ${d.num}</div>
+      <div class="dhr-balls">${ballsHtml}</div>
+      <div class="dhr-result ${d.won?'win':'loss'}">${d.won?d.prize:'—'}</div>
+    </div>`;
+  }).join('');
+  gsap.from('.draw-hist-row',{opacity:0,x:-10,stagger:.06,duration:.4,ease:'power2.out'});
+}
+
+/* ═══════════════════════════════════
+   HELPERS
+═══════════════════════════════════ */
+function fmtDate(d){return new Date(d+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});}
+function fmtShortDate(d){return new Date(d+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'});}
+
+function toast(msg,color,icon){
+  const c=document.getElementById('toast-wrap');
+  const t=document.createElement('div');
+  t.className='toast';
+  t.innerHTML=`<div class="t-ic ${color}">${icon}</div><span class="t-msg">${msg}</span><button class="t-x" onclick="this.parentElement.remove()">✕</button>`;
+  c.appendChild(t);
+  requestAnimationFrame(()=>requestAnimationFrame(()=>t.classList.add('show')));
+  setTimeout(()=>{t.classList.remove('show');setTimeout(()=>t.remove(),500);},4500);
+}
+
+/* ═══════════════════════════════════
+   INIT
+═══════════════════════════════════ */
+document.getElementById('f-date').value=new Date().toISOString().split('T')[0];
+
+// entrance animations
+gsap.from('.page-hdr',{opacity:0,y:20,duration:.6,ease:'power3.out',delay:.1});
+gsap.from('.score-col .card',{opacity:0,y:24,stagger:.1,duration:.55,ease:'power3.out',delay:.25});
+gsap.from('.score-sidebar .card',{opacity:0,x:16,stagger:.1,duration:.55,ease:'power3.out',delay:.35});
+gsap.from('.nav-item',{opacity:0,x:-12,stagger:.05,duration:.4,ease:'power2.out',delay:.1});
+
+renderAll();
+renderMyNumbers();
+</script>
+</body>
+</html>
